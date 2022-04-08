@@ -42,7 +42,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["gatsby-source-filesystem", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.1"],\
             ["gatsby-source-graphql", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.1"],\
             ["gatsby-transformer-sharp", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.0"],\
-            ["prettier", "npm:1.19.1"],\
+            ["prettier", "npm:2.6.2"],\
             ["prop-types", "npm:15.8.1"],\
             ["react", "npm:18.0.0"],\
             ["react-dom", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:18.0.0"],\
@@ -13902,7 +13902,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["gatsby-source-filesystem", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.1"],\
             ["gatsby-source-graphql", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.1"],\
             ["gatsby-transformer-sharp", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:4.11.0"],\
-            ["prettier", "npm:1.19.1"],\
+            ["prettier", "npm:2.6.2"],\
             ["prop-types", "npm:15.8.1"],\
             ["react", "npm:18.0.0"],\
             ["react-dom", "virtual:5550294fef111e094ce7cd7c05104afa9a946041332e04fd668f0f62413ca7863a8af07f07a24886f8bd19119d4ba8d7f30cea7c7865bf552d3bc68ac2b8f9f7#npm:18.0.0"],\
@@ -19978,10 +19978,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["prettier", [\
-        ["npm:1.19.1", {\
-          "packageLocation": "./.yarn/cache/prettier-npm-1.19.1-e56d246fd2-bc78219e0f.zip/node_modules/prettier/",\
+        ["npm:2.6.2", {\
+          "packageLocation": "./.yarn/cache/prettier-npm-2.6.2-05918420da-48d08dde8e.zip/node_modules/prettier/",\
           "packageDependencies": [\
-            ["prettier", "npm:1.19.1"]\
+            ["prettier", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\

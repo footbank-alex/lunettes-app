@@ -10568,7 +10568,7 @@ __metadata:
     gatsby-source-filesystem: ^4.11.1
     gatsby-source-graphql: ^4.11.1
     gatsby-transformer-sharp: ^4.11.0
-    prettier: ^1.18.2
+    prettier: ^2.6.2
     prop-types: ^15.8.1
     react: ^18.0.0
     react-dom: ^18.0.0
@@ -15660,12 +15660,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^1.18.2":
-  version: 1.19.1
-  resolution: "prettier@npm:1.19.1"
+"prettier@npm:^2.6.2":
+  version: 2.6.2
+  resolution: "prettier@npm:2.6.2"
   bin:
-    prettier: ./bin-prettier.js
-  checksum: bc78219e0f8173a808f4c6c8e0a137dd8ebd4fbe013e63fe1a37a82b48612f17b8ae8e18a992adf802ee2cf7428f14f084e7c2846ca5759cf4013c6e54810e1f
+    prettier: bin-prettier.js
+  checksum: 48d08dde8e9fb1f5bccdd205baa7f192e9fc8bc98f86e1b97d919de804e28c806b0e6cc685e4a88211aa7987fa9668f30baae19580d87ced3ed0f2ec6572106f
   languageName: node
   linkType: hard
 
