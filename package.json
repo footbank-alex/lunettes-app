@@ -1,8 +1,8 @@
 {
-  "name": "gatsby-auth-starter-aws",
-  "description": "Gatsby authentication starter for AWS",
+  "name": "lunettes-app",
+  "description": "Lunettes App",
   "version": "1.0.0",
-  "author": "Nader Dabit <dabit3.@gmail.com>",
+  "author": "Alexander Bittermann <alexander.bittermann@footbanksystems.com>",
   "dependencies": {
     "aws-amplify": "^4.3.19",
     "gatsby": "^4.11.2",
@@ -16,7 +16,8 @@
     "prop-types": "^15.8.1",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
-    "react-helmet": "^6.1.0"
+    "react-helmet": "^6.1.0",
+    "sharp": "^0.30.3"
   },
   "keywords": [
     "gatsby"
@@ -28,16 +29,14 @@
     "format": "prettier --write src/**/*.{js,jsx}",
     "start": "npm run develop",
     "serve": "gatsby serve",
-    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\""
+    "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
+    "amplify:lunettesRegister": "npm run --prefix amplify/backend/lib/lunettes-register build"
   },
   "devDependencies": {
     "prettier": "^2.6.2"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/gatsbyjs/gatsby-starter-default"
-  },
-  "resolutions": {
-    "graphql": "14.7.0"
+    "url": "https://github.com/footbank-alex/lunettes-app"
   }
 }

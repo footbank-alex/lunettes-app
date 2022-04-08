@@ -1,0 +1,88 @@
+[
+  {
+    "Action": [
+      "mobiletargeting:SendMessages"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetEndpoint",
+      "mobiletargeting:UpdateEndpoint",
+      "mobiletargeting:PutEvents"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/endpoints/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:CreateSegment",
+      "mobiletargeting:GetSegments",
+      "mobiletargeting:CreateCampaign",
+      "mobiletargeting:TagResource"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:PhoneNumberValidate"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:phone/number/validate",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
+

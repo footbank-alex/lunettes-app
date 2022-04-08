@@ -1,8 +1,32 @@
 {
-	"auth": {
-		"cognito704b3e59": {
-			"service": "Cognito",
-			"providerPlugin": "awscloudformation"
-		}
-	}
+  "auth": {
+    "cognito704b3e59": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation"
+    }
+  },
+  "function": {
+    "lunettesRegister": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
+    }
+  },
+  "api": {
+    "lunettesRegister": {
+      "service": "API Gateway",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [
+        {
+          "category": "function",
+          "resourceName": "lunettesRegister",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        }
+      ]
+    }
+  }
 }

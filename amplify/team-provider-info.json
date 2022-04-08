@@ -14,6 +14,13 @@
     "categories": {
       "auth": {
         "cognito704b3e59": {}
+      },
+      "function": {
+        "lunettesRegister": {
+          "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
+          "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
+          "s3Key": "amplify-builds/lunettesRegister-2f505a4a4c41554b3142-build.zip"
+        }
       }
     }
   }

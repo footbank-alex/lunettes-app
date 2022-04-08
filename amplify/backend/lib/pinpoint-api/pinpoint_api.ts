@@ -1,0 +1,227 @@
+import {
+    CreateCampaignCommand,
+    CreateSegmentCommand,
+    GetSegmentsCommand,
+    GetSegmentsCommandOutput,
+    PhoneNumberValidateCommand,
+    PinpointClient,
+    SendMessagesCommand,
+    UpdateEndpointCommand
+} from "@aws-sdk/client-pinpoint";
+import {createHash, zenkaku2hankaku} from "./utils";
+import {DateTime} from "luxon";
+import {CampaignConfig} from "./campaign_config";
+
+const MESSAGE_TYPE = "TRANSACTIONAL";
+
+const PAGE_SIZE = 200;
+
+const SEGMENT_UID_TAG = 'uid';
+
+const CAMPAIGN_NAME_MAX_LENGTH = 64;
+const CAMPAIGN_CONFIGS = [
+    new CampaignConfig('lunettes_seminar_reminder_1day', '（1日前）', (dateTime) => dateTime.minus({days: 1})),
+    new CampaignConfig('lunettes_seminar_reminder_1hour', '（1時間前）', (dateTime) => dateTime.minus({hours: 1}))
+];
+
+export class PinpointAPI {
+    private readonly pinpoint: PinpointClient;
+    private readonly projectId: string;
+
+    constructor(region: string, projectId: string) {
+        this.pinpoint = new PinpointClient({region: region});
+        this.projectId = projectId;
+    }
+
+    createSegmentMetadata(itemName: string, dateTime: DateTime): { uid: string; name: string } {
+        let dateSuffix = '_' + dateTime.toISO(
+            {
+                format: 'basic',
+                suppressMilliseconds: true,
+                suppressSeconds: true,
+                includeOffset: false
+            });
+        // since campaign names have a limit of 64 characters and segment name will be used in the campaign name
+        // we have to calculate max length for the segment name prefix
+        const segmentName = itemName.substring(0,
+            CAMPAIGN_NAME_MAX_LENGTH - dateSuffix.length - Math.max(
+                ...CAMPAIGN_CONFIGS.map(config => config.nameSuffix.length))) + dateSuffix;
+        const segmentUid = createHash(itemName + dateSuffix);
+        return {
+            uid: segmentUid,
+            name: segmentName
+        };
+    }
+
+    async validateNumber(phoneNumber: string) {
+        let destinationNumber = zenkaku2hankaku(phoneNumber.replace(/[-\/ー／]/g, ''));
+        if (destinationNumber.length === 11) {
+            destinationNumber = "+81" + destinationNumber;
+        }
+        const params = {
+            NumberValidateRequest: {
+                IsoCountryCode: 'JA',
+                PhoneNumber: destinationNumber
+            }
+        };
+        const data = await this.pinpoint.send(new PhoneNumberValidateCommand(params));
+        console.log(data);
+        return data.NumberValidateResponse;
+    }
+
+    async updateEndpoint(phoneNumber: string, name: string, itemName: string, source: string, dateTime: DateTime) {
+        const numberValidateResponse = await this.validateNumber(phoneNumber);
+        const destinationNumber = numberValidateResponse.CleansedPhoneNumberE164;
+        const userId = destinationNumber.substring(1);
+        const endpointId = userId + '_' + source;
+
+        const params = {
+            ApplicationId: this.projectId,
+            // The Endpoint ID is equal to the cleansed phone number minus the leading
+            // plus sign. This makes it easier to easily update the endpoint later.
+            EndpointId: endpointId,
+            EndpointRequest: {
+                ChannelType: 'SMS',
+                Address: destinationNumber,
+                OptOut: 'NONE',
+                Location: {
+                    PostalCode: numberValidateResponse.ZipCode,
+                    City: numberValidateResponse.City,
+                    Country: numberValidateResponse.CountryCodeIso2,
+                },
+                Demographic: {
+                    Timezone: numberValidateResponse.Timezone
+                },
+                Attributes: {
+                    Source: [
+                        source
+                    ],
+                    ItemName: [
+                        itemName
+                    ],
+                    DateTime: [
+                        dateTime.toLocaleString(DateTime.DATETIME_MED)
+                    ]
+                },
+                User: {
+                    UserAttributes: {
+                        Name: [
+                            name
+                        ]
+                    },
+                    UserId: userId
+                }
+            }
+        };
+        const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
+        console.log(response);
+        return endpointId;
+    }
+
+    async sendConfirmation(endpointId: string, templateName: string) {
+        const params = {
+            ApplicationId: this.projectId,
+            MessageRequest: {
+                Endpoints: {
+                    [endpointId]: {}
+                },
+                MessageConfiguration: {
+                    SMSMessage: {
+                        MessageType: MESSAGE_TYPE
+                    }
+                },
+                TemplateConfiguration: {
+                    SMSTemplate: {
+                        Name: templateName
+                    }
+                }
+            }
+        };
+
+        const data = await this.pinpoint.send(new SendMessagesCommand(params));
+        console.log("Message sent! " +
+            data.MessageResponse.EndpointResult[endpointId].StatusMessage);
+        return data.MessageResponse;
+    }
+
+    async segmentExists(uid: string) {
+        let token = undefined;
+        do {
+            const data: GetSegmentsCommandOutput = await this.pinpoint.send(new GetSegmentsCommand({
+                ApplicationId: this.projectId,
+                PageSize: PAGE_SIZE.toString(),
+                Token: token
+            }));
+            if (data.SegmentsResponse.Item.some(value => value.tags && value.tags[SEGMENT_UID_TAG] === uid)) {
+                return true;
+            }
+            token = data.SegmentsResponse.NextToken;
+        } while (token);
+        return false;
+    }
+
+    async createSegment(segmentUid: string, segmentName: string) {
+        const params = {
+            ApplicationId: this.projectId,
+            WriteSegmentRequest: {
+                Dimensions: {
+                    Attributes: {
+                        Source: {
+                            Values: [
+                                segmentUid
+                            ],
+                            AttributeType: 'INCLUSIVE'
+                        }
+                    }
+                },
+                Name: segmentName,
+                tags: {
+                    [SEGMENT_UID_TAG]: segmentUid
+                }
+            }
+        };
+        const data = await this.pinpoint.send(new CreateSegmentCommand(params));
+        console.log('Segment created');
+        console.log(data);
+        return data.SegmentResponse.Id;
+    }
+
+    async createCampaigns(segmentUid: string, segmentName: string, dateTime: DateTime) {
+        if (CAMPAIGN_CONFIGS.some(config => config.isApplicable(dateTime)) && !await this.segmentExists(segmentUid)) {
+            const segmentId = await this.createSegment(segmentUid, segmentName);
+            await Promise.all(CAMPAIGN_CONFIGS.filter(config => config.isApplicable(dateTime)).map(
+                async config => this.createCampaign(segmentName + config.nameSuffix, segmentId, config.template,
+                    config.calculateDateTime(dateTime))));
+        }
+    }
+
+    async createCampaign(campaignName: string, segmentId: string, templateName: string, dateTime: DateTime) {
+        const params = {
+            ApplicationId: this.projectId,
+            WriteCampaignRequest: {
+                MessageConfiguration: {
+                    SMSMessage: {
+                        MessageType: MESSAGE_TYPE
+                    }
+                },
+                Name: campaignName,
+                Schedule: {
+                    StartTime: dateTime.toISO(),
+                    Frequency: 'ONCE',
+                    Timezone: 'UTC+09'
+                },
+                SegmentId: segmentId,
+                TemplateConfiguration: {
+                    SMSTemplate: {
+                        Name: templateName
+                    }
+                }
+            }
+        };
+        const data = await this.pinpoint.send(new CreateCampaignCommand(params));
+        console.log('Campaign created');
+        console.log(data);
+        return data.CampaignResponse.Id;
+    }
+}
+

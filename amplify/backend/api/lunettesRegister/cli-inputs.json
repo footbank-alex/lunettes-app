@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "paths": {
+    "/lunettes/register": {
+      "name": "/lunettes/register",
+      "lambdaFunction": "lunettesRegister",
+      "permissions": {
+        "setting": "open"
+      }
+    }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "name": "overrides",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w"
+  },
+  "dependencies": {
+    "@aws-amplify/cli-extensibility-helper": "^2.3.21"
+  },
+  "devDependencies": {
+    "typescript": "^4.6.3"
+  },
+  "private": true,
+  "workspaces": [
+    "lib/pinpoint-api",
+    "lib/lunettes-register"
+  ]
+}
