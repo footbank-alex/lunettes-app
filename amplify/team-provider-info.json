@@ -1,0 +1,20 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-lunettesapp-dev-74758-authRole",
+      "UnauthRoleArn": "arn:aws:iam::618741021188:role/amplify-lunettesapp-dev-74758-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::618741021188:role/amplify-lunettesapp-dev-74758-authRole",
+      "Region": "ap-northeast-1",
+      "DeploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
+      "UnauthRoleName": "amplify-lunettesapp-dev-74758-unauthRole",
+      "StackName": "amplify-lunettesapp-dev-74758",
+      "StackId": "arn:aws:cloudformation:ap-northeast-1:618741021188:stack/amplify-lunettesapp-dev-74758/35e19a20-b710-11ec-aa26-0a49ec312d91",
+      "AmplifyAppId": "d2zxju13bhxxla"
+    },
+    "categories": {
+      "auth": {
+        "cognito704b3e59": {}
+      }
+    }
+  }
+}
