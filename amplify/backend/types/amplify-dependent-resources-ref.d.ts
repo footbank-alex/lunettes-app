@@ -16,10 +16,16 @@ export type AmplifyDependentResourcesAttributes = {
             "Arn": "string",
             "Region": "string",
             "LambdaExecutionRole": "string"
+        },
+        "lunettesEndpoints": {
+            "Name": "string",
+            "Arn": "string",
+            "Region": "string",
+            "LambdaExecutionRole": "string"
         }
     },
     "api": {
-        "lunettesRegister": {
+        "lunettes": {
             "RootUrl": "string",
             "ApiName": "string",
             "ApiId": "string"

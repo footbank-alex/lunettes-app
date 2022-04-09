@@ -61,8 +61,8 @@ const REQUEST_TEMPLATE = `
 }`
 
 export function override(resources: AmplifyApiRestResourceStackTemplate) {
-    delete resources.restApi.body.paths['/lunettes/register/{proxy+}'];
-    let path = resources.restApi.body.paths['/lunettes/register'];
+    delete resources.restApi.body.paths['/register/{proxy+}'];
+    let path = resources.restApi.body.paths['/register'];
     path.post = path['x-amazon-apigateway-any-method'];
     delete path['x-amazon-apigateway-any-method'];
     path.post.consumes = ['application/x-www-form-urlencoded'];

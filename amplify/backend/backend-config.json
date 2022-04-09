@@ -11,16 +11,30 @@
       "providerPlugin": "awscloudformation",
       "service": "Lambda",
       "dependsOn": []
+    },
+    "lunettesEndpoints": {
+      "build": true,
+      "providerPlugin": "awscloudformation",
+      "service": "Lambda",
+      "dependsOn": []
     }
   },
   "api": {
-    "lunettesRegister": {
+    "lunettes": {
       "service": "API Gateway",
       "providerPlugin": "awscloudformation",
       "dependsOn": [
         {
           "category": "function",
           "resourceName": "lunettesRegister",
+          "attributes": [
+            "Name",
+            "Arn"
+          ]
+        },
+        {
+          "category": "function",
+          "resourceName": "lunettesEndpoints",
           "attributes": [
             "Name",
             "Arn"

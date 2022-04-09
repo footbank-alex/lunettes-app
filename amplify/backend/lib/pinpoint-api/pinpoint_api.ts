@@ -3,6 +3,8 @@ import {
     CreateSegmentCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
+    GetUserEndpointsCommand,
+    NumberValidateResponse,
     PhoneNumberValidateCommand,
     PinpointClient,
     SendMessagesCommand,
@@ -69,10 +71,19 @@ export class PinpointAPI {
         return data.NumberValidateResponse;
     }
 
-    async updateEndpoint(phoneNumber: string, name: string, itemName: string, source: string, dateTime: DateTime) {
-        const numberValidateResponse = await this.validateNumber(phoneNumber);
+    async getEndpoints(numberValidateResponse: NumberValidateResponse) {
+        const userId = PinpointAPI.getUserId(numberValidateResponse.CleansedPhoneNumberE164);
+        const response = await this.pinpoint.send(new GetUserEndpointsCommand({
+            ApplicationId: this.projectId,
+            UserId: userId
+        }));
+        console.log(response);
+        return response.EndpointsResponse.Item;
+    }
+
+    async updateEndpoint(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, source: string, dateTime: DateTime) {
         const destinationNumber = numberValidateResponse.CleansedPhoneNumberE164;
-        const userId = destinationNumber.substring(1);
+        const userId = PinpointAPI.getUserId(destinationNumber);
         const endpointId = userId + '_' + source;
 
         const params = {
@@ -100,7 +111,7 @@ export class PinpointAPI {
                         itemName
                     ],
                     DateTime: [
-                        dateTime.toLocaleString(DateTime.DATETIME_MED)
+                        dateTime.toISO({suppressMilliseconds: true, suppressSeconds: true})
                     ]
                 },
                 User: {
@@ -222,6 +233,10 @@ export class PinpointAPI {
         console.log('Campaign created');
         console.log(data);
         return data.CampaignResponse.Id;
+    }
+
+    private static getUserId(cleansedPhoneNumber: string) {
+        return cleansedPhoneNumber.substring(1);
     }
 }
 

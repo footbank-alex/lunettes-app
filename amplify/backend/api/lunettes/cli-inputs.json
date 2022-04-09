@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "paths": {
+    "/register": {
+      "name": "/register",
+      "lambdaFunction": "lunettesRegister",
+      "permissions": {
+        "setting": "open"
+      }
+    },
+    "/endpoints/{phoneNumber}": {
+      "name": "/endpoints/{phoneNumber}",
+      "lambdaFunction": "lunettesEndpoints",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "read"
+        ]
+      }
+    },
+    "/endpoint/{endpointId}": {
+      "name": "/endpoint/{endpointId}",
+      "lambdaFunction": "lunettesEndpoints",
+      "permissions": {
+        "setting": "private",
+        "auth": [
+          "update",
+          "delete"
+        ]
+      }
+    }
+  }
+}

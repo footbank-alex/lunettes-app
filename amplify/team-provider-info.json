@@ -9,7 +9,8 @@
       "UnauthRoleName": "amplify-lunettesapp-dev-74758-unauthRole",
       "StackName": "amplify-lunettesapp-dev-74758",
       "StackId": "arn:aws:cloudformation:ap-northeast-1:618741021188:stack/amplify-lunettesapp-dev-74758/35e19a20-b710-11ec-aa26-0a49ec312d91",
-      "AmplifyAppId": "d2zxju13bhxxla"
+      "AmplifyAppId": "d2zxju13bhxxla",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-lunettesapp-dev-74758-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
@@ -19,7 +20,12 @@
         "lunettesRegister": {
           "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesRegister-2f505a4a4c41554b3142-build.zip"
+          "s3Key": "amplify-builds/lunettesRegister-5374457339746e625274-build.zip"
+        },
+        "lunettesEndpoints": {
+          "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
+          "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
+          "s3Key": "amplify-builds/lunettesEndpoints-436b775a6b3169624970-build.zip"
         }
       }
     }

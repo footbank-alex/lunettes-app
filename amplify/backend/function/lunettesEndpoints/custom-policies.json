@@ -1,0 +1,148 @@
+[
+  {
+    "Action": [
+      "mobiletargeting:SendMessages"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:CreateSegment",
+      "mobiletargeting:GetSegments",
+      "mobiletargeting:CreateCampaign",
+      "mobiletargeting:TagResource"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetEndpoint",
+      "mobiletargeting:UpdateEndpoint",
+      "mobiletargeting:DeleteEndpoint",
+      "mobiletargeting:PutEvents"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/endpoints/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetUserEndpoints"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/users/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteSegment"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/segments/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteCampaign"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/campaigns/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:PhoneNumberValidate"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:phone/number/validate",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
