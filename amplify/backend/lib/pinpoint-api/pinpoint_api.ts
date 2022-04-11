@@ -1,6 +1,7 @@
 import {
     CreateCampaignCommand,
     CreateSegmentCommand,
+    DeleteEndpointCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
     GetUserEndpointsCommand,
@@ -67,7 +68,7 @@ export class PinpointAPI {
             }
         };
         const data = await this.pinpoint.send(new PhoneNumberValidateCommand(params));
-        console.log(data);
+        console.debug(data);
         return data.NumberValidateResponse;
     }
 
@@ -77,19 +78,17 @@ export class PinpointAPI {
             ApplicationId: this.projectId,
             UserId: userId
         }));
-        console.log(response);
+        console.debug(response);
         return response.EndpointsResponse.Item;
     }
 
-    async updateEndpoint(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, source: string, dateTime: DateTime) {
+    async createEndpoint(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, source: string, dateTime: DateTime) {
         const destinationNumber = numberValidateResponse.CleansedPhoneNumberE164;
         const userId = PinpointAPI.getUserId(destinationNumber);
-        const endpointId = userId + '_' + source;
+        const endpointId = PinpointAPI.getEndpointId(userId, source);
 
         const params = {
             ApplicationId: this.projectId,
-            // The Endpoint ID is equal to the cleansed phone number minus the leading
-            // plus sign. This makes it easier to easily update the endpoint later.
             EndpointId: endpointId,
             EndpointRequest: {
                 ChannelType: 'SMS',
@@ -111,7 +110,7 @@ export class PinpointAPI {
                         itemName
                     ],
                     DateTime: [
-                        dateTime.toISO({suppressMilliseconds: true, suppressSeconds: true})
+                        PinpointAPI.getEndpointDateTime(dateTime)
                     ]
                 },
                 User: {
@@ -125,8 +124,42 @@ export class PinpointAPI {
             }
         };
         const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
-        console.log(response);
+        console.debug(response);
         return endpointId;
+    }
+
+    async updateEndpoint(endpointId: string, dateTime: DateTime) {
+        const endpoint = await this.deleteEndpoint(endpointId);
+        const metadata = this.createSegmentMetadata(endpoint.Attributes.ItemName[0], dateTime);
+
+        const params = {
+            ApplicationId: this.projectId,
+            EndpointId: PinpointAPI.getEndpointId(endpoint.User.UserId, metadata.uid),
+            EndpointRequest: {
+                ...endpoint,
+                Attributes: {
+                    ...endpoint.Attributes,
+                    Source: [
+                        metadata.uid
+                    ],
+                    DateTime: [
+                        PinpointAPI.getEndpointDateTime(dateTime)
+                    ]
+                }
+            }
+        };
+        const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
+        console.debug(response);
+        await this.createCampaigns(metadata.uid, metadata.name, dateTime);
+    }
+
+    async deleteEndpoint(endpointId: string) {
+        const response = await this.pinpoint.send(new DeleteEndpointCommand({
+            ApplicationId: this.projectId,
+            EndpointId: endpointId
+        }));
+        console.debug(response);
+        return response.EndpointResponse;
     }
 
     async sendConfirmation(endpointId: string, templateName: string) {
@@ -150,7 +183,7 @@ export class PinpointAPI {
         };
 
         const data = await this.pinpoint.send(new SendMessagesCommand(params));
-        console.log("Message sent! " +
+        console.debug("Message sent! " +
             data.MessageResponse.EndpointResult[endpointId].StatusMessage);
         return data.MessageResponse;
     }
@@ -193,7 +226,7 @@ export class PinpointAPI {
         };
         const data = await this.pinpoint.send(new CreateSegmentCommand(params));
         console.log('Segment created');
-        console.log(data);
+        console.debug(data);
         return data.SegmentResponse.Id;
     }
 
@@ -231,12 +264,20 @@ export class PinpointAPI {
         };
         const data = await this.pinpoint.send(new CreateCampaignCommand(params));
         console.log('Campaign created');
-        console.log(data);
+        console.debug(data);
         return data.CampaignResponse.Id;
     }
 
     private static getUserId(cleansedPhoneNumber: string) {
         return cleansedPhoneNumber.substring(1);
+    }
+
+    private static getEndpointId(userId: string, source: string) {
+        return userId + '_' + source;
+    }
+
+    private static getEndpointDateTime(dateTime: DateTime) {
+        return dateTime.toISO({suppressMilliseconds: true, suppressSeconds: true});
     }
 }
 

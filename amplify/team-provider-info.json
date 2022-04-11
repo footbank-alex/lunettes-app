@@ -20,12 +20,12 @@
         "lunettesRegister": {
           "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesRegister-5374457339746e625274-build.zip"
+          "s3Key": "amplify-builds/lunettesRegister-686c3357516d72717555-build.zip"
         },
         "lunettesEndpoints": {
           "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-436b775a6b3169624970-build.zip"
+          "s3Key": "amplify-builds/lunettesEndpoints-41796f694a3674476646-build.zip"
         }
       }
     }

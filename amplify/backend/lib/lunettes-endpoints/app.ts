@@ -66,27 +66,31 @@ app.get('/endpoints/:phoneNumber', async (req, res) => {
             .filter((result) => result.dateTime && result.dateTime > DateTime.local());
         res.json(response);
     } else {
-        console.log("Invalid phone number");
+        console.error("Invalid phone number");
         res.status(400).json({error: 'Invalid phone number!', url: req.url});
     }
 });
 
-/****************************
- * Example put method *
- ****************************/
-
-app.put('/endpoint/:endpointId', (req, res) => {
-    // Add your code here
-    res.json({success: 'put call succeed!', url: req.url, body: req.body})
+app.put('/endpoint/:endpointId', async (req, res) => {
+    let {dateTime} = req.body;
+    if (!dateTime) {
+        console.error("Invalid request, missing dateTime parameter");
+        return res.status(400).json({error: 'Invalid request, missing dateTime parameter', url: req.url});
+    }
+    dateTime = DateTime.fromISO(dateTime);
+    if (!dateTime.isValid) {
+        console.error("Invalid dateTime parameter");
+        return res.status(400).json({error: 'Invalid dateTime parameter', url: req.url});
+    }
+    const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
+    await api.updateEndpoint(req.params.endpointId, dateTime);
+    res.json({success: 'Successfully updated endpoint!', url: req.url, body: req.body})
 });
 
-/****************************
- * Example delete method *
- ****************************/
-
-app.delete('/endpoint/:endpointId', (req, res) => {
-    // Add your code here
-    res.json({success: 'delete call succeed!', url: req.url});
+app.delete('/endpoint/:endpointId', async (req, res) => {
+    const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
+    await api.deleteEndpoint(req.params.endpointId);
+    res.json({success: 'Successfully deleted endpoint!', url: req.url});
 });
 
 app.listen(3000, () => {

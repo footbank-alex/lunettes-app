@@ -20,7 +20,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     if (numberValidateResponse.PhoneTypeCode === 0) {
         const dateTime = parseDateTime(params.dateTime);
         const metadata = api.createSegmentMetadata(params.itemName, dateTime);
-        const endpointId = await api.updateEndpoint(numberValidateResponse, params.name, params.itemName, metadata.uid, dateTime);
+        const endpointId = await api.createEndpoint(numberValidateResponse, params.name, params.itemName, metadata.uid, dateTime);
         await api.sendConfirmation(endpointId, params.templateName);
         await api.createCampaigns(metadata.uid, metadata.name, dateTime);
     } else {
