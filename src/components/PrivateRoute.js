@@ -1,17 +1,16 @@
-
-import React from "react"
-import { navigate } from "@reach/router"
-import { isLoggedIn } from "../utils/auth"
+import React from "react";
+import { navigate } from "@reach/router";
+import { isLoggedIn } from "../utils/auth";
 
 class PrivateRoute extends React.Component {
   render() {
-    const { component: Component, location, ...rest } = this.props
+    const { component: Component, location, ...rest } = this.props;
     if (!isLoggedIn()) {
-      navigate(`/app/login`)
-      return null
+      navigate(`/app/login`);
+      return null;
     }
-    return <Component {...rest} />
+    return <Component {...rest} />;
   }
 }
 
-export default PrivateRoute
+export default PrivateRoute;
