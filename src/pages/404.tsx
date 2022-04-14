@@ -2,9 +2,6 @@ import * as React from "react";
 import Layout from "../components/Layout";
 import {Heading, Text} from "@aws-amplify/ui-react";
 import {graphql} from "gatsby";
-import '@aws-amplify/ui-react/styles.css';
-import '../styles/global.css';
-import "normalize.css"
 
 const NotFoundPage = () =>
     <Layout>

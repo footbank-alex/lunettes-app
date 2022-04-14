@@ -14,6 +14,7 @@ const config: GatsbyConfig = {
         ]
     },
     plugins: [
+        `gatsby-plugin-sass`,
         {
             resolve: `gatsby-source-package`,
             options: {

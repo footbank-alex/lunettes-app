@@ -3,8 +3,8 @@ import {ReactNode, useState} from "react"
 import {node} from "prop-types";
 import {graphql, StaticQuery} from "gatsby";
 import {Helmet, useI18next} from "gatsby-plugin-react-i18next";
-import NavBar from "./NavBar";
-import {AmplifyProvider, Authenticator, ColorMode, Flex, Heading, useTheme, View} from "@aws-amplify/ui-react";
+import NavBar, {Navigation} from "./NavBar";
+import {AmplifyProvider, Authenticator, Button, ColorMode, Flex, Heading, useTheme, View} from "@aws-amplify/ui-react";
 import setLanguage from "../language/language";
 import {
     DefaultComponents
@@ -15,6 +15,7 @@ import PageRibbon from "./PageRibbon";
 import config from '../aws-exports';
 import lunettesTheme from "../theme/lunettesTheme";
 import ColorModeSwitcher from "./ColorModeSwitcher";
+import {MdClose, MdMenu} from "react-icons/md";
 
 interface LayoutProps {
     children: ReactNode
@@ -58,6 +59,7 @@ const Layout = ({children}: LayoutProps) => {
     const {language} = useI18next();
     setLanguage(language);
     const [colorMode, setColorMode] = useState<ColorMode>('system');
+    const [expanded, setExpanded] = React.useState(false);
 
     return <StaticQuery
         query={graphql`
@@ -95,6 +97,22 @@ const Layout = ({children}: LayoutProps) => {
                                     menuLinks={data.site.siteMetadata.menuLinks}
                                     version={data.package.version}
                                     colorMode={colorMode} setColorMode={setColorMode}/>
+                            <Button
+                                className="menu-button"
+                                onClick={() => setExpanded(!expanded)}
+                                ariaLabel="Menu button">
+                                {expanded ? <MdClose style={{width: '1.5rem', height: '1.5rem'}}/> :
+                                    <MdMenu style={{width: '1.5rem', height: '1.5rem'}}/>}
+                            </Button>
+                            {expanded &&
+                                <View className={`mobile-nav${expanded ? ' expanded' : ''}`}>
+                                    <Navigation siteTitle={data.site.siteMetadata.title}
+                                                menuLinks={data.site.siteMetadata.menuLinks}
+                                                version={data.package.version}
+                                                colorMode={colorMode} setColorMode={setColorMode}
+                                                onClick={() => setExpanded(false)}/>
+                                </View>
+                            }
                             <main>
                                 {children}
                             </main>

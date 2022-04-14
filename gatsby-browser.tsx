@@ -6,6 +6,9 @@ import {Settings} from "luxon";
 import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import {getEndpointsResponse} from "./mock-data";
+import '@aws-amplify/ui-react/styles.css';
+import "normalize.css";
+import "./src/styles/index.scss";
 
 Amplify.configure(config);
 

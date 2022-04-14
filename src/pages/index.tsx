@@ -1,8 +1,5 @@
 import * as React from "react"
 import {graphql} from "gatsby";
-import '@aws-amplify/ui-react/styles.css';
-import '../styles/global.css';
-import "normalize.css"
 
 const IndexPage = () => {
 };

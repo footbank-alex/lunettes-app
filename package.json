@@ -16,6 +16,7 @@
     "gatsby-plugin-react-i18next": "^1.2.3",
     "gatsby-source-package": "^1.0.1",
     "gatsby-plugin-portal": "^1.0.7",
+    "gatsby-plugin-sass": "^5.12.1",
     "gatsby-plugin-sharp": "^4.12.1",
     "gatsby-source-filesystem": "^4.12.1",
     "gatsby-source-graphql": "^4.12.1",
@@ -31,6 +32,7 @@
     "react-i18next": "^11.16.6",
     "react-icons": "^4.3.1",
     "react-portal": "^4.2.2",
+    "sass": "^1.50.1",
     "sharp": "^0.30.3"
   },
   "keywords": [
