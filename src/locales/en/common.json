@@ -1,1 +1,12 @@
-{}
+{
+  "button": {
+    "save": "Save",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "signOut": "Sign out"
+  },
+  "languages": {
+    "ja": "Japanese",
+    "en": "English"
+  }
+}

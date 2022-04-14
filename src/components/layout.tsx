@@ -1,18 +1,23 @@
 import * as React from "react"
 import {ReactNode} from "react"
 import {node} from "prop-types";
-import Helmet from "react-helmet";
 import {graphql, StaticQuery} from "gatsby";
 
 import Header from "./header";
 import {View} from "@aws-amplify/ui-react";
+import {Helmet, useI18next} from "gatsby-plugin-react-i18next";
+import setLanguage from "../language/language";
 
 interface LayoutProps {
     children: ReactNode
 }
 
-const Layout = ({children}: LayoutProps) =>
-    (
+const Layout = ({children}: LayoutProps) => {
+    const {language} = useI18next();
+    // set amplify language here because there's no way to retrieve the language outside of a component
+    setLanguage(language);
+
+    return (
         <StaticQuery
             query={graphql`
           query SiteTitleQuery {
@@ -31,7 +36,7 @@ const Layout = ({children}: LayoutProps) =>
                         meta={[
                             {name: "description", content: data.site.siteMetadata.description},
                         ]}>
-                        <html lang="ja"/>
+                        <html lang={language}/>
                     </Helmet>
                     <Header siteTitle={data.site.siteMetadata.title}/>
                     <View margin="0 auto"
@@ -43,6 +48,7 @@ const Layout = ({children}: LayoutProps) =>
             )}
         />
     );
+};
 
 Layout.propTypes = {
     children: node.isRequired,

@@ -1,0 +1,27 @@
+{
+  "heading": "Seminar Reminders",
+  "search": {
+    "label": "Search",
+    "placeholder": "Phone number",
+    "error": {
+      "heading": "Server error",
+      "unexpected": "Unexpected error"
+    },
+    "result": {
+      "empty": "No results",
+      "search": {
+        "placeholder": "Type to search..."
+      }
+    }
+  },
+  "delete": {
+    "text": "Delete",
+    "modal": {
+      "heading": "Delete reminder",
+      "content": "Are you sure?"
+    }
+  },
+  "update": {
+    "text": "Update"
+  }
+}
