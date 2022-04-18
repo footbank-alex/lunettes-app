@@ -5,8 +5,10 @@
     "cancel": "Cancel",
     "signOut": "Sign out"
   },
-  "languages": {
-    "ja": "Japanese",
-    "en": "English"
-  }
+  "menu": {
+    "seminar": {
+      "reminder": "Seminar Reminders"
+    }
+  },
+  "user": "User"
 }

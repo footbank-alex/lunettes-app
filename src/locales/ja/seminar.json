@@ -1,0 +1,31 @@
+{
+  "heading": "セミナーリマインダー管理",
+  "search": {
+    "label": "検索",
+    "placeholder": "電話番号",
+    "error": {
+      "heading": "サーバーエラー",
+      "unexpected": "予想外のエラーが発生しました"
+    },
+    "result": {
+      "empty": "検索結果がありません",
+      "search": {
+        "placeholder": "検索..."
+      }
+    }
+  },
+  "delete": {
+    "text": "削除",
+    "modal": {
+      "heading": "リマインダー削除",
+      "content": "本当に削除しますか？"
+    }
+  },
+  "update": {
+    "text": "編集",
+    "modal": {
+      "heading": "リマインダー編集",
+      "content": "新しい日時を選択してください："
+    }
+  }
+}

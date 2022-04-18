@@ -3,11 +3,23 @@ import * as path from "path";
 
 const config: GatsbyConfig = {
     siteMetadata: {
-        title: `Lunettes`,
+        title: `Lunettes App`,
         description: `Lunettes App`,
         author: `Alexander Bittermann`,
+        menuLinks: [
+            {
+                name: 'seminar.reminder',
+                link: '/seminar/reminder'
+            }
+        ]
     },
     plugins: [
+        {
+            resolve: `gatsby-source-package`,
+            options: {
+                only: ['version'],
+            },
+        },
         `gatsby-plugin-react-helmet`,
         {
             resolve: `gatsby-source-filesystem`,
@@ -21,13 +33,13 @@ const config: GatsbyConfig = {
         {
             resolve: `gatsby-plugin-manifest`,
             options: {
-                name: `gatsby-starter-default`,
-                short_name: `starter`,
+                name: `Lunettes App`,
+                short_name: `Lunettes`,
                 start_url: `/`,
-                background_color: `#663399`,
-                theme_color: `#663399`,
+                background_color: `#304050`,
+                theme_color: `#304050`,
                 display: `minimal-ui`,
-                icon: `src/images/gatsby-icon.png`, // This path is relative to the root of the site.
+                icon: `src/images/fbs-icon.png`, // This path is relative to the root of the site.
             },
         },
         {
@@ -36,6 +48,12 @@ const config: GatsbyConfig = {
                 path: path.resolve(`src/locales`),
                 name: `locale`
             }
+        },
+        {
+            resolve: `gatsby-plugin-layout`,
+            options: {
+                component: path.resolve(`./src/components/Layout.tsx`),
+            },
         },
         {
             resolve: `gatsby-plugin-react-i18next`,

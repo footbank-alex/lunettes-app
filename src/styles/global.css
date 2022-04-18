@@ -1,10 +1,17 @@
 body {
-    background-color: var(--amplify-colors-background-secondary);
+    background-color: var(--amplify-colors-background-primary);
 }
 
 #portal {
     position: relative;
     z-index: 999;
+}
+
+[data-amplify-authenticator] {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .modal {
@@ -17,4 +24,97 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+.sidebar {
+    display: block;
+    width: 16rem;
+    position: relative;
+}
+
+.sidebar-inner {
+    height: 100vh;
+    width: 16rem;
+    overflow-y: auto;
+    position: fixed;
+    border-right: var(--amplify-border-widths-small) solid var(--amplify-colors-border-primary);
+    box-shadow: var(--amplify-shadows-medium);
+    z-index: 10;
+    background-color: var(--amplify-colors-background-secondary);
+}
+
+.sidebar-nav > .amplify-heading {
+    padding: var(--amplify-space-xs) var(--amplify-space-medium);
+    letter-spacing: .05em;
+}
+
+.sidebar-nav > .amplify-text {
+    padding: var(--amplify-space-xs) var(--amplify-space-medium);
+}
+
+.nav-link {
+    display: block;
+    padding: var(--amplify-space-small);
+    font-size: var(--amplify-font-sizes-small);
+    color: var(--amplify-colors-font-secondary);
+    text-decoration: none;
+}
+
+.nav-link.current {
+    color: var(--amplify-colors-font-hover);
+    background-color: var(--amplify-colors-brand-primary-10);
+}
+
+.nav-link:hover {
+    background-color: var(--amplify-colors-brand-primary-10);
+}
+
+.amplify-button {
+    gap: 0.2rem;
+}
+
+.react-datetime-picker span, input {
+    color: var(--amplify-colors-font-primary);
+}
+
+.react-datetime-picker svg {
+    stroke: var(--amplify-colors-font-primary);
+}
+
+.react-calendar, .react-datetime-picker__clock {
+    background-color: var(--amplify-colors-background-secondary) !important;
+    border-color: var(--amplify-colors-border-primary) !important;
+}
+
+.react-calendar__navigation__arrow, .react-calendar__tile {
+    color: var(--amplify-components-button-color);
+}
+
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus,
+.react-calendar__navigation button:enabled:hover,
+.react-calendar__navigation button:enabled:focus {
+    background-color: var(--amplify-components-button-hover-background-color) !important;
+}
+
+.react-calendar__tile--now {
+    background-color: var(--amplify-colors-background-info) !important;
+}
+
+.react-calendar__tile--active {
+    background-color: var(--amplify-components-button-active-background-color) !important;
+}
+
+.react-clock__mark__body, .react-clock__hand__body {
+    background-color: var(--amplify-colors-font-primary) !important;
+}
+
+.modal-content {
+    min-height: 170px;
+    min-width: 300px;
+}
+
+.modal-buttons {
+    margin-block-start: auto;
+    margin-inline-start: auto;
 }

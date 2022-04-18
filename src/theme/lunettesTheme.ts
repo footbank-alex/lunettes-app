@@ -5,6 +5,16 @@ export default createTheme({
     name: 'lunettes-theme',
     overrides: [
         {
+            colorMode: 'light',
+            tokens: {
+                colors: {
+                    background: {
+                        secondary: {value: '{colors.neutral.20.value}'}
+                    }
+                }
+            }
+        },
+        {
             colorMode: 'dark',
             tokens: {
                 colors: {

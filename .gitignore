@@ -1,6 +1,8 @@
 node_modules/**
 build/**
 public/**
+.cache
+.cache/**
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
