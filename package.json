@@ -40,10 +40,13 @@
   "scripts": {
     "build": "gatsby build",
     "develop": "gatsby develop",
+    "develop:dev": "amplify env checkout dev && npm run develop",
+    "develop:prod": "amplify env checkout prod && npm run develop",
     "clean": "gatsby clean",
     "serve": "gatsby serve",
     "format": "prettier --write src/**/*.{js,jsx}",
-    "start": "npm run develop",
+    "start:dev": "npm run develop:dev",
+    "start:prod": "npm run develop:prod",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
     "amplify:lunettesRegister": "npm run --prefix amplify/backend/lib/lunettes-register build",
     "amplify:lunettesEndpoints": "npm run --prefix amplify/backend/lib/lunettes-endpoints build"
