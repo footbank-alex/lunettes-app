@@ -4,7 +4,7 @@ import {
     DeleteEndpointCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
-    GetUserEndpointsCommand,
+    GetUserEndpointsCommand, NotFoundException,
     NumberValidateResponse,
     PhoneNumberValidateCommand,
     PinpointClient,
@@ -74,12 +74,21 @@ export class PinpointAPI {
 
     async getEndpoints(numberValidateResponse: NumberValidateResponse) {
         const userId = PinpointAPI.getUserId(numberValidateResponse.CleansedPhoneNumberE164);
-        const response = await this.pinpoint.send(new GetUserEndpointsCommand({
-            ApplicationId: this.projectId,
-            UserId: userId
-        }));
-        console.debug(response);
-        return response.EndpointsResponse.Item;
+        try {
+            const response = await this.pinpoint.send(new GetUserEndpointsCommand({
+                ApplicationId: this.projectId,
+                UserId: userId
+            }));
+            console.debug(response);
+            return response.EndpointsResponse.Item || [];
+        } catch (e: unknown) {
+            console.error(e);
+            if (e instanceof NotFoundException) {
+                console.info(`User ID ${userId} does not exist, returning empty list of endpoints`);
+                return [];
+            }
+            throw e;
+        }
     }
 
     async createEndpoint(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, source: string, dateTime: DateTime) {

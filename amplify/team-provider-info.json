@@ -18,14 +18,14 @@
       },
       "function": {
         "lunettesRegister": {
-          "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesRegister-686c3357516d72717555-build.zip"
+          "s3Key": "amplify-builds/lunettesRegister-4f626e57305967507a73-build.zip",
+          "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         },
         "lunettesEndpoints": {
-          "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-62633642677143496c62-build.zip"
+          "s3Key": "amplify-builds/lunettesEndpoints-3866694944634b596b78-build.zip",
+          "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         }
       }
     }
@@ -40,7 +40,8 @@
       "UnauthRoleName": "amplify-lunettesapp-prod-13118-unauthRole",
       "StackName": "amplify-lunettesapp-prod-13118",
       "StackId": "arn:aws:cloudformation:ap-northeast-1:618741021188:stack/amplify-lunettesapp-prod-13118/f9b9c9f0-bf34-11ec-979d-0a54b5895429",
-      "AmplifyAppId": "d2zxju13bhxxla"
+      "AmplifyAppId": "d2zxju13bhxxla",
+      "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-lunettesapp-prod-13118-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
       "auth": {
@@ -49,13 +50,13 @@
       "function": {
         "lunettesRegister": {
           "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
-          "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
+          "deploymentBucketName": "amplify-lunettesapp-prod-13118-deployment",
           "s3Key": "amplify-builds/lunettesRegister-686c3357516d72717555-build.zip"
         },
         "lunettesEndpoints": {
           "pinpointProjectId": "089445da8f724844b12750228ce76bb8",
-          "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-41796f694a3674476646-build.zip"
+          "deploymentBucketName": "amplify-lunettesapp-prod-13118-deployment",
+          "s3Key": "amplify-builds/lunettesEndpoints-62633642677143496c62-build.zip"
         }
       }
     }

@@ -21,9 +21,9 @@ import {parseDateTime} from "pinpoint-api/utils";
 Amplify Params - DO NOT EDIT */
 
 // declare a new express app
-const app = express()
-app.use(bodyParser.json())
-app.use(awsServerlessExpressMiddleware.eventContext())
+const app = express();
+app.use(bodyParser.json());
+app.use(awsServerlessExpressMiddleware.eventContext());
 
 // Enable CORS for all methods
 app.use((req, res, next) => {
@@ -49,22 +49,37 @@ function parse(dateTime: string) {
     return null;
 }
 
+function getErrorMessage(e: unknown) {
+    let errorMessage = 'Unexpected error';
+    if (e instanceof Error) {
+        errorMessage = e.message
+    } else if (typeof e === 'string') {
+        errorMessage = e;
+    }
+    return errorMessage;
+}
+
 app.get('/endpoints/:phoneNumber', async (req, res) => {
     const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
     const numberValidateResponse = await api.validateNumber(req.params.phoneNumber);
     if (numberValidateResponse.PhoneTypeCode === 0) {
-        const endpoints = await api.getEndpoints(numberValidateResponse);
-        const response = endpoints
-            .filter((endpoint) => endpoint.Attributes?.ItemName && endpoint.Attributes?.DateTime)
-            .map((endpoint) => {
-                return {
-                    id: endpoint.Id,
-                    itemName: endpoint.Attributes.ItemName[0],
-                    dateTime: parse(endpoint.Attributes.DateTime[0])
-                }
-            })
-            .filter((result) => result.dateTime && result.dateTime > DateTime.local());
-        res.json(response);
+        try {
+            const endpoints = await api.getEndpoints(numberValidateResponse);
+            const response = endpoints
+                .filter((endpoint) => endpoint.Attributes?.ItemName && endpoint.Attributes?.DateTime)
+                .map((endpoint) => {
+                    return {
+                        id: endpoint.Id,
+                        itemName: endpoint.Attributes.ItemName[0],
+                        dateTime: parse(endpoint.Attributes.DateTime[0])
+                    }
+                })
+                .filter((result) => result.dateTime && result.dateTime > DateTime.local());
+            res.json(response);
+        } catch (e: unknown) {
+            let errorMessage = getErrorMessage(e);
+            res.status(500).json({error: errorMessage, url: req.url});
+        }
     } else {
         console.error("Invalid phone number");
         res.status(400).json({error: 'Invalid phone number!', url: req.url});
@@ -82,15 +97,25 @@ app.put('/endpoint/:endpointId', async (req, res) => {
         console.error("Invalid dateTime parameter");
         return res.status(400).json({error: 'Invalid dateTime parameter', url: req.url});
     }
-    const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
-    await api.updateEndpoint(req.params.endpointId, dateTime);
-    res.json({success: 'Successfully updated endpoint!', url: req.url, body: req.body})
+    try {
+        const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
+        await api.updateEndpoint(req.params.endpointId, dateTime);
+        res.json({success: 'Successfully updated endpoint!', url: req.url, body: req.body});
+    } catch (e: unknown) {
+        let errorMessage = getErrorMessage(e);
+        res.status(500).json({error: errorMessage, url: req.url});
+    }
 });
 
 app.delete('/endpoint/:endpointId', async (req, res) => {
-    const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
-    await api.deleteEndpoint(req.params.endpointId);
-    res.json({success: 'Successfully deleted endpoint!', url: req.url});
+    try {
+        const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
+        await api.deleteEndpoint(req.params.endpointId);
+        res.json({success: 'Successfully deleted endpoint!', url: req.url});
+    } catch (e: unknown) {
+        let errorMessage = getErrorMessage(e);
+        res.status(500).json({error: errorMessage, url: req.url});
+    }
 });
 
 app.listen(3000, () => {
