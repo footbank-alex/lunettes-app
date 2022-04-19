@@ -61,9 +61,9 @@ function getErrorMessage(e: unknown) {
 
 app.get('/endpoints/:phoneNumber', async (req, res) => {
     const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);
-    const numberValidateResponse = await api.validateNumber(req.params.phoneNumber);
-    if (numberValidateResponse.PhoneTypeCode === 0) {
-        try {
+    try {
+        const numberValidateResponse = await api.validateNumber(req.params.phoneNumber);
+        if (numberValidateResponse.PhoneTypeCode === 0) {
             const endpoints = await api.getEndpoints(numberValidateResponse);
             const response = endpoints
                 .filter((endpoint) => endpoint.Attributes?.ItemName && endpoint.Attributes?.DateTime)
@@ -76,13 +76,14 @@ app.get('/endpoints/:phoneNumber', async (req, res) => {
                 })
                 .filter((result) => result.dateTime && result.dateTime > DateTime.local());
             res.json(response);
-        } catch (e: unknown) {
-            let errorMessage = getErrorMessage(e);
-            res.status(500).json({error: errorMessage, url: req.url});
+        } else {
+            console.error("Invalid phone number");
+            res.status(400).json({error: 'Invalid phone number!', url: req.url});
         }
-    } else {
-        console.error("Invalid phone number");
-        res.status(400).json({error: 'Invalid phone number!', url: req.url});
+    } catch (e) {
+        console.error(e);
+        let errorMessage = getErrorMessage(e);
+        res.status(500).json({error: errorMessage, url: req.url});
     }
 });
 

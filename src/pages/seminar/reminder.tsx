@@ -43,24 +43,28 @@ export default () => {
         if (typeof e === 'string') {
             setError(e);
         } else if (e instanceof Error) {
-            setError(e.message);
+            console.log(e);
+            // @ts-ignore
+            setError(e.response?.data?.error || e.message);
         } else {
             setError(t('search.error.unexpected'));
         }
     }
 
     async function search(value: string) {
-        setEndpoints([]);
-        setSearchValue(value);
-        setLoading(true);
-        setError('');
-        try {
-            const endpoints: Endpoint[] = await Endpoints.get(value);
-            setEndpoints(endpoints);
-        } catch (e: unknown) {
-            handleError(e);
-        } finally {
-            setLoading(false);
+        if (value) {
+            setEndpoints([]);
+            setSearchValue(value);
+            setLoading(true);
+            setError('');
+            try {
+                const endpoints: Endpoint[] = await Endpoints.get(value);
+                setEndpoints(endpoints);
+            } catch (e: unknown) {
+                handleError(e);
+            } finally {
+                setLoading(false);
+            }
         }
     }
 
@@ -91,11 +95,12 @@ export default () => {
     return (
         <Flex direction="column">
             <Heading level={1}>{t('heading')}</Heading>
-            <SearchField labelHidden={false} label={t('search.label')} placeholder={t('search.placeholder')}
+            <SearchField pattern="[0-9+-/]+" labelHidden={false} label={t('search.label')}
+                         placeholder={t('search.placeholder')}
                          onSubmit={search}/>
             {!!error &&
                 <Alert variation="error" isDismissible={true} hasIcon={true} heading={t('search.error.heading')}>
-                    error
+                    {error}
                 </Alert>}
             {loading && <Loader size="large"/>}
             {searchValue && !loading && (!endpoints || endpoints.length <= 0) &&
