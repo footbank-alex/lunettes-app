@@ -1,7 +1,7 @@
 {
   "heading": "Seminar Reminders",
   "search": {
-    "label": "Search",
+    "label": "Search by phone number:",
     "placeholder": "Phone number",
     "error": {
       "heading": "Server error",
@@ -10,7 +10,7 @@
     "result": {
       "empty": "No results",
       "search": {
-        "placeholder": "Type to search..."
+        "placeholder": "Type to search results..."
       }
     }
   },

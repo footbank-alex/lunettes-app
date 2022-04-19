@@ -13,8 +13,7 @@ import {
     Loader,
     SearchField,
     Text,
-    useTheme,
-    View
+    useTheme
 } from "@aws-amplify/ui-react";
 import {DateTime} from "luxon";
 import {MdDelete} from "@react-icons/all-files/md/MdDelete";
@@ -90,9 +89,10 @@ export default () => {
     }
 
     return (
-        <View>
+        <Flex direction="column">
             <Heading level={1}>{t('heading')}</Heading>
-            <SearchField label={t('search.label')} placeholder={t('search.placeholder')} onSubmit={search}/>
+            <SearchField labelHidden={false} label={t('search.label')} placeholder={t('search.placeholder')}
+                         onSubmit={search}/>
             {!!error &&
                 <Alert variation="error" isDismissible={true} hasIcon={true} heading={t('search.error.heading')}>
                     error
@@ -147,7 +147,7 @@ export default () => {
                                         )}
                                     </PortalWithState>
                                     <PortalWithState node={document && document.getElementById('portal')}
-                                                     closeOnOutsideClick closeOnEsc>
+                                                     closeOnEsc>
                                         {({openPortal, closePortal, portal}) => (
                                             <>
                                                 <Button onClick={openPortal}
@@ -184,7 +184,7 @@ export default () => {
                     )}
                 </Collection>
             }
-        </View>
+        </Flex>
     );
 };
 
