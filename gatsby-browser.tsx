@@ -5,6 +5,9 @@ import {AmplifyProvider, Authenticator, translations} from "@aws-amplify/ui-reac
 import {Amplify, I18n} from "aws-amplify";
 import config from './src/aws-exports';
 import {Settings} from "luxon";
+import MockAdapter from "axios-mock-adapter";
+import axios from "axios";
+import {getEndpointsResponse} from "./mock-data";
 
 Amplify.configure(config);
 
@@ -17,6 +20,24 @@ I18n.putVocabulariesForLanguage('ja', {
 });
 
 Settings.defaultZone = 'Japan';
+
+if (process.env.GATSBY_MOCK) {
+    console.log("MOCK");
+    const mock = new MockAdapter(axios);
+
+    mock
+        .onGet(/\/endpoints\/.+$/)
+        .reply(200, getEndpointsResponse)
+        .onDelete(/\/endpoint\/.+$/)
+        .reply(200)
+        .onPut(/\/endpoint\/.+$/)
+        .reply(200)
+        .onAny()
+        .reply(config => {
+            console.log(config.url);
+            return [200, {}];
+        });
+}
 
 export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = ({element}) => {
     return (
