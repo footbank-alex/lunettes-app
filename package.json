@@ -49,8 +49,8 @@
     "start:dev": "yarn run develop:dev",
     "start:prod": "yarn run develop:prod",
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
-    "amplify:lunettesRegister": "yarn run --prefix amplify/backend/lib/lunettes-register build",
-    "amplify:lunettesEndpoints": "yarn run --prefix amplify/backend/lib/lunettes-endpoints build"
+    "amplify:lunettesRegister": "yarn --cwd amplify/backend/lib/lunettes-register run build",
+    "amplify:lunettesEndpoints": "yarn --cwd amplify/backend/lib/lunettes-endpoints run build"
   },
   "devDependencies": {
     "@types/luxon": "^2.3.1",
