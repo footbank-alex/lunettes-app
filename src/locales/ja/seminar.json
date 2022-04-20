@@ -30,8 +30,9 @@
       "heading": "リマインダー編集",
       "content": "新しい日時を選択してください："
     },
-    "errors": {
-      "dateTimeInPast": "過去の日時は許可されていません。"
+    "validation": {
+      "dateTimeInPast": "過去の日時は許可されていません。",
+      "dateTimeEmpty": "日時を設定してください。"
     }
   },
   "serverErrors": {

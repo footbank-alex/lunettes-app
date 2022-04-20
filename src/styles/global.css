@@ -82,7 +82,7 @@ body {
 }
 
 .react-calendar, .react-datetime-picker__clock {
-    background-color: var(--amplify-colors-background-secondary) !important;
+    background-color: var(--amplify-colors-background-primary) !important;
     border-color: var(--amplify-colors-border-primary) !important;
 }
 

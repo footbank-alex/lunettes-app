@@ -17,18 +17,15 @@ import {
     View
 } from "@aws-amplify/ui-react";
 import {DateTime} from "luxon";
-import {MdDelete} from "@react-icons/all-files/md/MdDelete";
-import {MdEdit} from "@react-icons/all-files/md/MdEdit";
 import {PortalWithState} from "react-portal";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import DateTimePicker from "react-datetime-picker";
 import {Endpoints} from "../../api/endpoint";
 import Modal from "../../components/Modal";
 import {graphql} from "gatsby";
-import {MdSave} from "@react-icons/all-files/md/MdSave";
-import {MdCancel} from "@react-icons/all-files/md/MdCancel";
 import {getPortalNode} from "../../utils/portal";
 import {isValidPhoneNumber} from "../../utils/validation";
+import {MdCancel, MdDelete, MdEdit, MdSave} from "react-icons/md";
 import Endpoint = Endpoints.Endpoint;
 
 export default () => {
@@ -107,8 +104,13 @@ export default () => {
         }
     }
 
-    function isDateTimeError() {
-        return DateTime.fromJSDate(newDateTime) <= DateTime.now();
+    function dateTimeError() {
+        if (!newDateTime) {
+            return 'dateTimeEmpty';
+        } else if (DateTime.fromJSDate(newDateTime) <= DateTime.now()) {
+            return 'dateTimeInPast';
+        }
+        return null;
     }
 
     return (
@@ -122,7 +124,7 @@ export default () => {
                 <Alert variation="error" isDismissible={true} hasIcon={true} heading={t('search.error.heading')}>
                     {error}
                 </Alert>}
-            {loading && <Loader size="large"/>}
+            {loading && <Loader alignSelf="center" size="large"/>}
             {searchValue && searchValid && !loading && (!endpoints || endpoints.length <= 0) &&
                 <Alert variation="info">{t('search.result.empty')}</Alert>}
             {endpoints && endpoints.length > 0 &&
@@ -157,13 +159,13 @@ export default () => {
                                                                                 locale={language}
                                                                                 onChange={setNewDateTime}
                                                                                 value={newDateTime}/>
-                                                                {isDateTimeError() &&
+                                                                {dateTimeError() &&
                                                                     <View
-                                                                        className="amplify-field__error-message">{t('update.errors.dateTimeInPast')}</View>}
+                                                                        className="amplify-field__error-message">{t(`update.validation.${dateTimeError()}`)}</View>}
                                                             </Flex>
                                                             <ButtonGroup className="modal-buttons">
                                                                 <Button isLoading={updating}
-                                                                        disabled={isDateTimeError()}
+                                                                        disabled={!!dateTimeError()}
                                                                         onClick={async () => await update(item, closePortal)}
                                                                         backgroundColor={tokens.colors.background.info}>
                                                                     <Icon ariaLabel="Save"

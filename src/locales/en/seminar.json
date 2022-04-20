@@ -30,8 +30,9 @@
       "heading": "Update reminder",
       "content": "Please select a new date/time:"
     },
-    "errors": {
-      "dateTimeInPast": "Date/Time cannot be in the past"
+    "validation": {
+      "dateTimeInPast": "Date/Time cannot be in the past",
+      "dateTimeEmpty": "Date/Time is required"
     }
   },
   "serverErrors": {
