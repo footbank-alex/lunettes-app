@@ -135,13 +135,13 @@ export default () => {
                               backgroundColor={index % 2 == 0 ? tokens.colors.background.secondary : undefined}
                               padding="0.5rem">
                             <Flex justifyContent="space-between" alignItems="center">
-                                <Text>{item.itemName} {DateTime.fromISO(item.dateTime).toLocaleString(DateTime.DATETIME_MED)}</Text>
+                                <Text>{item.itemName} {item.dateTime.toLocaleString(DateTime.DATETIME_MED)}</Text>
                                 <ButtonGroup>
                                     <PortalWithState node={getPortalNode()} closeOnEsc>
                                         {({openPortal, closePortal, portal}) => (
                                             <>
                                                 <Button onClick={(event) => {
-                                                    setNewDateTime(DateTime.fromISO(item.dateTime).toJSDate());
+                                                    setNewDateTime(item.dateTime.toJSDate());
                                                     openPortal(event);
                                                 }} backgroundColor={tokens.colors.background.info}>
                                                     <Icon ariaLabel="Update" as={MdEdit}/> {t('update.text')}
