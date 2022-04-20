@@ -24,7 +24,7 @@
         },
         "lunettesEndpoints": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-6d314577502f38766752-build.zip",
+          "s3Key": "amplify-builds/lunettesEndpoints-4a425a334e5532324231-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         }
       }

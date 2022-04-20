@@ -77,8 +77,9 @@ app.get('/endpoints/:phoneNumber', async (req, res) => {
                 .filter((result) => result.dateTime && result.dateTime > DateTime.local());
             res.json(response);
         } else {
-            console.error("Invalid phone number");
-            res.status(400).json({error: 'Invalid phone number!', url: req.url});
+            const message = "Invalid phone number";
+            console.error(message);
+            res.status(400).json({error: message, url: req.url});
         }
     } catch (e) {
         console.error(e);
@@ -90,13 +91,20 @@ app.get('/endpoints/:phoneNumber', async (req, res) => {
 app.put('/endpoint/:endpointId', async (req, res) => {
     let {dateTime} = req.body;
     if (!dateTime) {
-        console.error("Invalid request, missing dateTime parameter");
-        return res.status(400).json({error: 'Invalid request, missing dateTime parameter', url: req.url});
+        const message = "Invalid request, missing dateTime parameter";
+        console.error(message);
+        return res.status(400).json({error: message, url: req.url});
     }
     dateTime = DateTime.fromISO(dateTime);
     if (!dateTime.isValid) {
-        console.error("Invalid dateTime parameter");
-        return res.status(400).json({error: 'Invalid dateTime parameter', url: req.url});
+        const message = "Invalid dateTime parameter";
+        console.error(message);
+        return res.status(400).json({error: message, url: req.url});
+    }
+    if (dateTime <= DateTime.local()) {
+        const message = "DateTime cannot be in the past";
+        console.error(message);
+        return res.status(400).json({error: message, url: req.url});
     }
     try {
         const api = new PinpointAPI(process.env.REGION, process.env.pinpointProjectId);

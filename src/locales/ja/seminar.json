@@ -7,6 +7,9 @@
       "heading": "サーバーエラー",
       "unexpected": "予想外のエラーが発生しました"
     },
+    "validation": {
+      "invalidPhoneNumber": "正式な電話番号を入力してください"
+    },
     "result": {
       "empty": "検索結果がありません",
       "search": {
@@ -26,6 +29,12 @@
     "modal": {
       "heading": "リマインダー編集",
       "content": "新しい日時を選択してください："
+    },
+    "errors": {
+      "dateTimeInPast": "過去の日時は許可されていません。"
     }
+  },
+  "serverErrors": {
+    "Invalid phone number": "無効な電話番号です。"
   }
 }

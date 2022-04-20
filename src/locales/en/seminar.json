@@ -7,6 +7,9 @@
       "heading": "Server error",
       "unexpected": "Unexpected error"
     },
+    "validation": {
+      "invalidPhoneNumber": "Please enter a correct phone number"
+    },
     "result": {
       "empty": "No results",
       "search": {
@@ -26,6 +29,12 @@
     "modal": {
       "heading": "Update reminder",
       "content": "Please select a new date/time:"
+    },
+    "errors": {
+      "dateTimeInPast": "Date/Time cannot be in the past"
     }
+  },
+  "serverErrors": {
+    "Invalid phone number": "Invalid phone number"
   }
 }

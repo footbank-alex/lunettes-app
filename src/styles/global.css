@@ -97,6 +97,11 @@ body {
     background-color: var(--amplify-components-button-hover-background-color) !important;
 }
 
+.react-calendar__tile:disabled,
+.react-calendar__navigation button:disabled {
+    background-color: var(--amplify-components-button-primary-disabled-background-color) !important;
+}
+
 .react-calendar__tile--now {
     background-color: var(--amplify-colors-background-info) !important;
 }

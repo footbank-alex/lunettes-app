@@ -13,7 +13,8 @@ import {
     Loader,
     SearchField,
     Text,
-    useTheme
+    useTheme,
+    View
 } from "@aws-amplify/ui-react";
 import {DateTime} from "luxon";
 import {MdDelete} from "@react-icons/all-files/md/MdDelete";
@@ -26,17 +27,21 @@ import Modal from "../../components/Modal";
 import {graphql} from "gatsby";
 import {MdSave} from "@react-icons/all-files/md/MdSave";
 import {MdCancel} from "@react-icons/all-files/md/MdCancel";
+import {getPortalNode} from "../../utils/portal";
+import {isValidPhoneNumber} from "../../utils/validation";
 import Endpoint = Endpoints.Endpoint;
 
 export default () => {
     const {tokens} = useTheme();
     const {t, language} = useI18next();
 
-    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
     const [searchValue, setSearchValue] = useState('');
-    const [error, setError] = useState('');
+    const [searchValid, setSearchValid] = useState(true);
     const [loading, setLoading] = useState(false);
+    const [endpoints, setEndpoints] = useState<Endpoint[]>([]);
+    const [error, setError] = useState('');
     const [newDateTime, setNewDateTime] = useState(new Date());
+    const [updating, setUpdating] = useState(false);
 
     function handleError(e: unknown) {
         console.error(e);
@@ -45,77 +50,92 @@ export default () => {
         } else if (e instanceof Error) {
             console.log(e);
             // @ts-ignore
-            setError(e.response?.data?.error || e.message);
+            const message = e.response?.data?.error || e.message;
+            setError(t(`serverErrors.${message}`, message));
         } else {
             setError(t('search.error.unexpected'));
         }
     }
 
     async function search(value: string) {
+        setSearchValid(true);
+        setEndpoints([]);
+        setSearchValue(value);
+        setError('');
         if (value) {
-            setEndpoints([]);
-            setSearchValue(value);
-            setLoading(true);
-            setError('');
-            try {
-                const endpoints: Endpoint[] = await Endpoints.get(value);
-                setEndpoints(endpoints);
-            } catch (e: unknown) {
-                handleError(e);
-            } finally {
-                setLoading(false);
+            if (isValidPhoneNumber(value)) {
+                setLoading(true);
+                try {
+                    const endpoints: Endpoint[] = await Endpoints.get(value);
+                    setEndpoints(endpoints);
+                } catch (e: unknown) {
+                    handleError(e);
+                } finally {
+                    setLoading(false);
+                }
+            } else {
+                setSearchValid(false);
             }
         }
     }
 
     async function remove(endpoint: Endpoint, closePortal: () => void) {
         setError('');
+        setUpdating(true);
         try {
             await Endpoints.remove(endpoint);
             await search(searchValue);
         } catch (e: unknown) {
             handleError(e);
         } finally {
+            setUpdating(false);
             closePortal();
         }
     }
 
     async function update(endpoint: Endpoint, closePortal: () => void) {
         setError('');
+        setUpdating(true);
         try {
             await Endpoints.update(endpoint, DateTime.fromJSDate(newDateTime));
             await search(searchValue);
         } catch (e: unknown) {
             handleError(e);
         } finally {
+            setUpdating(false);
             closePortal();
         }
+    }
+
+    function isDateTimeError() {
+        return DateTime.fromJSDate(newDateTime) <= DateTime.now();
     }
 
     return (
         <Flex direction="column">
             <Heading level={1}>{t('heading')}</Heading>
-            <SearchField pattern="[0-9+-/]+" labelHidden={false} label={t('search.label')}
+            <SearchField labelHidden={false} label={t('search.label')}
                          placeholder={t('search.placeholder')}
-                         onSubmit={search}/>
+                         onSubmit={search} hasError={!searchValid}
+                         errorMessage={t('search.validation.invalidPhoneNumber')}/>
             {!!error &&
                 <Alert variation="error" isDismissible={true} hasIcon={true} heading={t('search.error.heading')}>
                     {error}
                 </Alert>}
             {loading && <Loader size="large"/>}
-            {searchValue && !loading && (!endpoints || endpoints.length <= 0) &&
+            {searchValue && searchValid && !loading && (!endpoints || endpoints.length <= 0) &&
                 <Alert variation="info">{t('search.result.empty')}</Alert>}
             {endpoints && endpoints.length > 0 &&
-                <Collection type="list" items={endpoints} isPaginated itemsPerPage={20} gap="1.5rem"
+                <Collection type="list" items={endpoints} isPaginated itemsPerPage={20} gap={0}
                             isSearchable searchPlaceholder={t('search.result.search.placeholder')}>
                     {(item, index) => (
                         <Card key={index}
                               backgroundColor={index % 2 == 0 ? tokens.colors.background.secondary : undefined}
-                              padding="1rem">
+                              padding="0.5rem">
                             <Flex justifyContent="space-between" alignItems="center">
                                 <Text>{item.itemName} {DateTime.fromISO(item.dateTime).toLocaleString(DateTime.DATETIME_MED)}</Text>
                                 <ButtonGroup>
-                                    <PortalWithState node={document && document.getElementById('portal')} closeOnEsc>
+                                    <PortalWithState node={getPortalNode()} closeOnEsc>
                                         {({openPortal, closePortal, portal}) => (
                                             <>
                                                 <Button onClick={(event) => {
@@ -131,16 +151,25 @@ export default () => {
                                                             <Divider/>
                                                             <Text
                                                                 fontSize="large">{t('update.modal.content')}</Text>
-                                                            <DateTimePicker locale={language} onChange={setNewDateTime}
-                                                                            value={newDateTime}/>
+                                                            <Flex className="amplify-field amplify-textfield">
+                                                                <DateTimePicker required
+                                                                                minDate={DateTime.now().toJSDate()}
+                                                                                locale={language}
+                                                                                onChange={setNewDateTime}
+                                                                                value={newDateTime}/>
+                                                                {isDateTimeError() &&
+                                                                    <View
+                                                                        className="amplify-field__error-message">{t('update.errors.dateTimeInPast')}</View>}
+                                                            </Flex>
                                                             <ButtonGroup className="modal-buttons">
-                                                                <Button
-                                                                    onClick={async () => await update(item, closePortal)}
-                                                                    backgroundColor={tokens.colors.background.info}>
+                                                                <Button isLoading={updating}
+                                                                        disabled={isDateTimeError()}
+                                                                        onClick={async () => await update(item, closePortal)}
+                                                                        backgroundColor={tokens.colors.background.info}>
                                                                     <Icon ariaLabel="Save"
                                                                           as={MdSave}/> {t('button.save')}
                                                                 </Button>
-                                                                <Button onClick={closePortal}>
+                                                                <Button onClick={closePortal} disabled={updating}>
                                                                     <Icon ariaLabel="Cancel"
                                                                           as={MdCancel}/> {t('button.cancel')}
                                                                 </Button>
@@ -151,8 +180,7 @@ export default () => {
                                             </>
                                         )}
                                     </PortalWithState>
-                                    <PortalWithState node={document && document.getElementById('portal')}
-                                                     closeOnEsc>
+                                    <PortalWithState node={getPortalNode()} closeOnEsc>
                                         {({openPortal, closePortal, portal}) => (
                                             <>
                                                 <Button onClick={openPortal}
@@ -166,13 +194,13 @@ export default () => {
                                                             <Divider/>
                                                             <Text fontSize="large">{t('delete.modal.content')}</Text>
                                                             <ButtonGroup className="modal-buttons">
-                                                                <Button
-                                                                    onClick={async () => await remove(item, closePortal)}
-                                                                    backgroundColor={tokens.colors.background.error}>
+                                                                <Button isLoading={updating}
+                                                                        onClick={async () => await remove(item, closePortal)}
+                                                                        backgroundColor={tokens.colors.background.error}>
                                                                     <Icon ariaLabel="Delete"
                                                                           as={MdDelete}/> {t('button.delete')}
                                                                 </Button>
-                                                                <Button onClick={closePortal}>
+                                                                <Button onClick={closePortal} disabled={updating}>
                                                                     <Icon ariaLabel="Cancel"
                                                                           as={MdCancel}/> {t('button.cancel')}
                                                                 </Button>

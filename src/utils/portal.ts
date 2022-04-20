@@ -1,0 +1,1 @@
+export const getPortalNode = () => document && document.getElementById('portal');
