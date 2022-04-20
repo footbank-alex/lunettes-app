@@ -1,15 +1,28 @@
 import * as React from "react"
-import {Button, Collection, Divider, Flex, Heading, Icon, Text, useAuthenticator} from "@aws-amplify/ui-react";
+import {
+    Button,
+    Collection,
+    ColorMode,
+    Divider,
+    Flex,
+    Heading,
+    Icon,
+    Text,
+    useAuthenticator
+} from "@aws-amplify/ui-react";
 import {Link, useI18next} from "gatsby-plugin-react-i18next";
 import {RouterProps} from "@reach/router";
 import LanguageSelector from "./LanguageSelector";
-import {RiLogoutBoxRLine} from "@react-icons/all-files/ri/RiLogoutBoxRLine";
 import Copyright from "./Copyright";
+import ColorModeSwitcher from "./ColorModeSwitcher";
+import {MdLogout} from "react-icons/md";
 
 interface NavbarProps extends RouterProps {
     siteTitle: string,
     menuLinks: [{ name: string, link: string }],
-    version: string
+    version: string,
+    colorMode: ColorMode,
+    setColorMode: (value: ColorMode) => void
 }
 
 export default (props: NavbarProps) => {
@@ -40,9 +53,10 @@ export default (props: NavbarProps) => {
                     <Divider/>
                     <Flex direction="column" position="absolute" bottom="0.2rem" width="100%" gap="0.2rem"
                           padding="0 0.2rem">
+                        <ColorModeSwitcher colorMode={props.colorMode} setColorMode={props.setColorMode}/>
                         <LanguageSelector/>
                         <Button onClick={logout}>
-                            <Icon ariaLabel="Logout" as={RiLogoutBoxRLine}/> {t('button.signOut')}
+                            <Icon ariaLabel="Logout" as={MdLogout}/> {t('button.signOut')}
                         </Button>
                         <Copyright/>
                     </Flex>

@@ -1,10 +1,10 @@
 import * as React from "react"
-import {ReactNode} from "react"
+import {ReactNode, useState} from "react"
 import {node} from "prop-types";
 import {graphql, StaticQuery} from "gatsby";
 import {Helmet, useI18next} from "gatsby-plugin-react-i18next";
 import NavBar from "./NavBar";
-import {Authenticator, Flex, Heading, useTheme, View} from "@aws-amplify/ui-react";
+import {AmplifyProvider, Authenticator, ColorMode, Flex, Heading, useTheme, View} from "@aws-amplify/ui-react";
 import setLanguage from "../language/language";
 import {
     DefaultComponents
@@ -13,12 +13,14 @@ import Copyright from "./Copyright";
 import LanguageSelector from "./LanguageSelector";
 import PageRibbon from "./PageRibbon";
 import config from '../aws-exports';
+import lunettesTheme from "../theme/lunettesTheme";
+import ColorModeSwitcher from "./ColorModeSwitcher";
 
 interface LayoutProps {
     children: ReactNode
 }
 
-const authenticatorComponents = (heading: string): DefaultComponents => ({
+const authenticatorComponents = (heading: string, colorMode: ColorMode, setColorMode: (value: ColorMode) => void): DefaultComponents => ({
     Header() {
         const {tokens} = useTheme();
 
@@ -36,6 +38,7 @@ const authenticatorComponents = (heading: string): DefaultComponents => ({
             <View textAlign="center" padding={tokens.space.large}>
                 <Flex direction="column" alignItems="center">
                     <LanguageSelector/>
+                    <ColorModeSwitcher colorMode={colorMode} setColorMode={setColorMode}/>
                     <Copyright/>
                 </Flex>
             </View>
@@ -54,6 +57,7 @@ const Layout = ({children}: LayoutProps) => {
     const env = process.env.REACT_APP_BUILD_ENV || getEnvFromAwsExports();
     const {language} = useI18next();
     setLanguage(language);
+    const [colorMode, setColorMode] = useState<ColorMode>('system');
 
     return (
         <StaticQuery
@@ -75,29 +79,32 @@ const Layout = ({children}: LayoutProps) => {
           }
         `}
             render={(data) => (
-                <>
-                    <Helmet
-                        title={data.site.siteMetadata.title}
-                        meta={[
-                            {name: "description", content: data.site.siteMetadata.description},
-                        ]}>
-                        <html lang={language}/>
-                    </Helmet>
-                    {env !== 'prod' && <PageRibbon env={env}/>}
-                    <Authenticator key={language} hideSignUp
-                                   components={authenticatorComponents(data.site.siteMetadata.title)}>
-                        {() =>
-                            <Flex>
-                                <NavBar siteTitle={data.site.siteMetadata.title}
-                                        menuLinks={data.site.siteMetadata.menuLinks}
-                                        version={data.package.version}/>
-                                <main>
-                                    {children}
-                                </main>
-                            </Flex>
-                        }
-                    </Authenticator>
-                </>
+                <AmplifyProvider theme={lunettesTheme} colorMode={colorMode}>
+                    <Authenticator.Provider>
+                        <Helmet
+                            title={data.site.siteMetadata.title}
+                            meta={[
+                                {name: "description", content: data.site.siteMetadata.description},
+                            ]}>
+                            <html lang={language}/>
+                        </Helmet>
+                        {env !== 'prod' && <PageRibbon env={env}/>}
+                        <Authenticator key={language} hideSignUp
+                                       components={authenticatorComponents(data.site.siteMetadata.title, colorMode, setColorMode)}>
+                            {() =>
+                                <Flex>
+                                    <NavBar siteTitle={data.site.siteMetadata.title}
+                                            menuLinks={data.site.siteMetadata.menuLinks}
+                                            version={data.package.version}
+                                            colorMode={colorMode} setColorMode={setColorMode}/>
+                                    <main>
+                                        {children}
+                                    </main>
+                                </Flex>
+                            }
+                        </Authenticator>
+                    </Authenticator.Provider>
+                </AmplifyProvider>
             )}
         />
     );

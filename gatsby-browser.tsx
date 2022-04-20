@@ -1,7 +1,5 @@
 import * as React from "react";
-import type {GatsbyBrowser} from "gatsby";
-import lunettesTheme from "./src/theme/lunettesTheme";
-import {AmplifyProvider, Authenticator, translations} from "@aws-amplify/ui-react";
+import {translations} from "@aws-amplify/ui-react";
 import {Amplify, I18n} from "aws-amplify";
 import config from './src/aws-exports';
 import {Settings} from "luxon";
@@ -37,14 +35,4 @@ if (process.env.GATSBY_MOCK) {
             console.log(config.url);
             return [200, {}];
         });
-}
-
-export const wrapRootElement: GatsbyBrowser["wrapRootElement"] = ({element}) => {
-    return (
-        <AmplifyProvider theme={lunettesTheme} colorMode="system">
-            <Authenticator.Provider>
-                {element}
-            </Authenticator.Provider>
-        </AmplifyProvider>
-    )
 }
