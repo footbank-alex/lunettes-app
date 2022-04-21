@@ -6,9 +6,6 @@ interface PageRibbonProps {
 }
 
 export default ({env}: PageRibbonProps) =>
-    (
-        <View className="ribbon">
-            <a href="">{env}</a>
-        </View>
-
-    );
+    <View className="ribbon">
+        <a href="">{env}</a>
+    </View>;

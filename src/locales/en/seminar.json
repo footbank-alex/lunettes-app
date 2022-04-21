@@ -3,10 +3,6 @@
   "search": {
     "label": "Search by phone number:",
     "placeholder": "Phone number",
-    "error": {
-      "heading": "Server error",
-      "unexpected": "Unexpected error"
-    },
     "validation": {
       "invalidPhoneNumber": "Please enter a correct phone number"
     },
@@ -36,6 +32,8 @@
     }
   },
   "serverErrors": {
+    "heading": "Server error",
+    "unexpected": "Unexpected error",
     "Invalid phone number": "Invalid phone number"
   }
 }

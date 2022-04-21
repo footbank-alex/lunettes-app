@@ -23,20 +23,17 @@ export default () => {
         setLanguage(lng);
     }
 
-    return (
-        <Menu trigger={
-            <MenuButton>
-                <Language language={language}/>
-            </MenuButton>
-        }>
-            {languages.map(lng =>
-                <MenuItem key={lng} onClick={() => changeLng(lng)}>
-                    <Language language={lng}/>
-                </MenuItem>
-            )}
-        </Menu>
-
-    );
+    return <Menu trigger={
+        <MenuButton>
+            <Language language={language}/>
+        </MenuButton>
+    }>
+        {languages.map(lng =>
+            <MenuItem key={lng} onClick={() => changeLng(lng)}>
+                <Language language={lng}/>
+            </MenuItem>
+        )}
+    </Menu>;
 };
 
 interface LanguageProps {

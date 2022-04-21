@@ -8,13 +8,11 @@ interface ModalProps {
 }
 
 const Modal = ({children}: ModalProps) =>
-    (
-        <View className="modal">
-            <Card variation="outlined" className="modal-content">
-                {children}
-            </Card>
-        </View>
-    );
+    <View className="modal">
+        <Card variation="outlined" className="modal-content">
+            {children}
+        </Card>
+    </View>;
 
 Modal.propTypes = {
     children: node.isRequired,

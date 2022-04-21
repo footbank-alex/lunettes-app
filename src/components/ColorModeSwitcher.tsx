@@ -7,28 +7,25 @@ interface ColorModeSwitcherProps {
     setColorMode: (value: ColorMode) => void;
 }
 
-export default ({colorMode, setColorMode}: ColorModeSwitcherProps) => {
-    return (
-        <ToggleButtonGroup
-            value={colorMode}
-            size="small"
-            onChange={(value) => setColorMode(value as ColorMode)}
-            isExclusive
-            isSelectionRequired
-            className="color-switcher"
-        >
-            <ToggleButton value="light">
-                <VisuallyHidden>Light mode</VisuallyHidden>
-                <MdWbSunny/>
-            </ToggleButton>
-            <ToggleButton value="dark">
-                <VisuallyHidden>Dark mode</VisuallyHidden>
-                <MdBedtime/>
-            </ToggleButton>
-            <ToggleButton value="system">
-                <VisuallyHidden>System preference</VisuallyHidden>
-                <MdTonality/>
-            </ToggleButton>
-        </ToggleButtonGroup>
-    );
-};
+export default ({colorMode, setColorMode}: ColorModeSwitcherProps) =>
+    <ToggleButtonGroup
+        value={colorMode}
+        size="small"
+        onChange={(value) => setColorMode(value as ColorMode)}
+        isExclusive
+        isSelectionRequired
+        className="color-switcher"
+    >
+        <ToggleButton value="light">
+            <VisuallyHidden>Light mode</VisuallyHidden>
+            <MdWbSunny/>
+        </ToggleButton>
+        <ToggleButton value="dark">
+            <VisuallyHidden>Dark mode</VisuallyHidden>
+            <MdBedtime/>
+        </ToggleButton>
+        <ToggleButton value="system">
+            <VisuallyHidden>System preference</VisuallyHidden>
+            <MdTonality/>
+        </ToggleButton>
+    </ToggleButtonGroup>;

@@ -3,10 +3,6 @@
   "search": {
     "label": "電話番号で検索してください：",
     "placeholder": "電話番号",
-    "error": {
-      "heading": "サーバーエラー",
-      "unexpected": "予想外のエラーが発生しました"
-    },
     "validation": {
       "invalidPhoneNumber": "正式な電話番号を入力してください"
     },
@@ -36,6 +32,8 @@
     }
   },
   "serverErrors": {
+    "heading": "サーバーエラー",
+    "unexpected": "予想外のエラーが発生しました",
     "Invalid phone number": "無効な電話番号です。"
   }
 }

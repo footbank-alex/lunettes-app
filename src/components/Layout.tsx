@@ -59,55 +59,51 @@ const Layout = ({children}: LayoutProps) => {
     setLanguage(language);
     const [colorMode, setColorMode] = useState<ColorMode>('system');
 
-    return (
-        <StaticQuery
-            query={graphql`
-          query SiteTitleQuery {
-            site {
-              siteMetadata {
-                title
-                description
-                menuLinks {
-                  name
-                  link
-                }
-              }
-            }
-            package {
-              version
+    return <StaticQuery
+        query={graphql`
+      query SiteTitleQuery {
+        site {
+          siteMetadata {
+            title
+            description
+            menuLinks {
+              name
+              link
             }
           }
-        `}
-            render={(data) => (
-                <AmplifyProvider theme={lunettesTheme} colorMode={colorMode}>
-                    <Authenticator.Provider>
-                        <Helmet
-                            title={data.site.siteMetadata.title}
-                            meta={[
-                                {name: "description", content: data.site.siteMetadata.description},
-                            ]}>
-                            <html lang={language}/>
-                        </Helmet>
-                        {env !== 'prod' && <PageRibbon env={env}/>}
-                        <Authenticator key={language} hideSignUp
-                                       components={authenticatorComponents(data.site.siteMetadata.title, colorMode, setColorMode)}>
-                            {() =>
-                                <Flex>
-                                    <NavBar siteTitle={data.site.siteMetadata.title}
-                                            menuLinks={data.site.siteMetadata.menuLinks}
-                                            version={data.package.version}
-                                            colorMode={colorMode} setColorMode={setColorMode}/>
-                                    <main>
-                                        {children}
-                                    </main>
-                                </Flex>
-                            }
-                        </Authenticator>
-                    </Authenticator.Provider>
-                </AmplifyProvider>
-            )}
-        />
-    );
+        }
+        package {
+          version
+        }
+      }
+    `}
+        render={(data) => <AmplifyProvider theme={lunettesTheme} colorMode={colorMode}>
+            <Authenticator.Provider>
+                <Helmet
+                    title={data.site.siteMetadata.title}
+                    meta={[
+                        {name: "description", content: data.site.siteMetadata.description},
+                    ]}>
+                    <html lang={language}/>
+                </Helmet>
+                {env !== 'prod' && <PageRibbon env={env}/>}
+                <Authenticator key={language} hideSignUp
+                               components={authenticatorComponents(data.site.siteMetadata.title, colorMode, setColorMode)}>
+                    {() =>
+                        <Flex>
+                            <NavBar siteTitle={data.site.siteMetadata.title}
+                                    menuLinks={data.site.siteMetadata.menuLinks}
+                                    version={data.package.version}
+                                    colorMode={colorMode} setColorMode={setColorMode}/>
+                            <main>
+                                {children}
+                            </main>
+                        </Flex>
+                    }
+                </Authenticator>
+            </Authenticator.Provider>
+        </AmplifyProvider>}
+    />;
 };
 
 Layout.propTypes = {

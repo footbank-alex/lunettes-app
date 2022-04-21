@@ -6,12 +6,11 @@ import '@aws-amplify/ui-react/styles.css';
 import '../styles/global.css';
 import "normalize.css"
 
-const NotFoundPage = () => (
+const NotFoundPage = () =>
     <Layout>
         <Heading level={1}>NOT FOUND</Heading>
         <Text>You just hit a route that doesn&#39;t exist... the sadness.</Text>
-    </Layout>
-);
+    </Layout>;
 
 export const query = graphql`
   query ($language: String!) {
