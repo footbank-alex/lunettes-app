@@ -15,9 +15,8 @@ import LanguageSelector from "./LanguageSelector";
 import Copyright from "./Copyright";
 import ColorModeSwitcher from "./ColorModeSwitcher";
 import {MdLogout} from "react-icons/md";
-import {RouterProps} from "@reach/router";
 
-interface NavbarProps extends RouterProps {
+interface NavbarProps {
     siteTitle: string,
     menuLinks: [{ name: string, link: string }],
     version: string,
@@ -27,7 +26,7 @@ interface NavbarProps extends RouterProps {
 }
 
 export const Navigation = (props: NavbarProps) => {
-    const {t, navigate} = useI18next();
+    const {t, navigate, path} = useI18next();
     const {signOut, user} = useAuthenticator();
 
     async function logout() {
@@ -44,7 +43,7 @@ export const Navigation = (props: NavbarProps) => {
             <Divider/>
             <Collection type="list" items={props.menuLinks} gap="1.5rem">
                 {(item) => <Link key={item.name} onClick={props.onClick}
-                                 className={`nav-link${props.location?.pathname === item.link ? " current" : ""}`}
+                                 className={`nav-link${path === item.link ? " current" : ""}`}
                                  to={item.link}>{t(`menu.${item.name}`)}</Link>}
             </Collection>
             <Divider/>

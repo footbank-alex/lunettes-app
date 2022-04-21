@@ -9,7 +9,7 @@ const config: GatsbyConfig = {
         menuLinks: [
             {
                 name: 'seminar.reminder',
-                link: '/seminar/reminder'
+                link: '/seminar/reminder/'
             }
         ]
     },
