@@ -13,9 +13,6 @@
       "APIGatewayAuthURL": "https://s3.amazonaws.com/amplify-lunettesapp-dev-74758-deployment/amplify-cfn-templates/api/APIGatewayAuthStack.json"
     },
     "categories": {
-      "auth": {
-        "cognito704b3e59": {}
-      },
       "function": {
         "lunettesRegister": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
@@ -27,6 +24,9 @@
           "s3Key": "amplify-builds/lunettesEndpoints-4a425a334e5532324231-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         }
+      },
+      "auth": {
+        "lunettesAuth": {}
       }
     }
   },
