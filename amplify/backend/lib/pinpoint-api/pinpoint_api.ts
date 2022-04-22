@@ -1,10 +1,15 @@
 import {
+    CampaignResponse,
     CreateCampaignCommand,
     CreateSegmentCommand,
+    DeleteCampaignCommand,
     DeleteEndpointCommand,
+    DeleteSegmentCommand,
+    GetCampaignsCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
-    GetUserEndpointsCommand, NotFoundException,
+    GetUserEndpointsCommand,
+    NotFoundException,
     NumberValidateResponse,
     PhoneNumberValidateCommand,
     PinpointClient,
@@ -277,6 +282,33 @@ export class PinpointAPI {
         return data.CampaignResponse.Id;
     }
 
+    async* getCampaigns(filter: (value: CampaignResponse) => boolean = () => true, pageSize = PAGE_SIZE): AsyncIterableIterator<CampaignResponse> {
+        let token = undefined;
+        do {
+            const params = {
+                ApplicationId: this.projectId,
+                PageSize: pageSize.toString(),
+                Token: token
+            };
+            const data = await this.pinpoint.send(new GetCampaignsCommand(params));
+            for (const item of data.CampaignsResponse.Item.filter(filter)) {
+                yield item;
+            }
+            token = data.CampaignsResponse.NextToken;
+        } while (token);
+    }
+
+    async deleteSegment(segmentId: string) {
+        await this.pinpoint.send(
+            new DeleteSegmentCommand({ApplicationId: this.projectId, SegmentId: segmentId}));
+        console.log('Deleted segment:', segmentId);
+    }
+
+    async deleteCampaign(campaignId: string) {
+        await this.pinpoint.send(new DeleteCampaignCommand({ApplicationId: this.projectId, CampaignId: campaignId}));
+        console.log('Deleted campaign:', campaignId);
+    }
+
     private static getUserId(cleansedPhoneNumber: string) {
         return cleansedPhoneNumber.substring(1);
     }
@@ -289,4 +321,3 @@ export class PinpointAPI {
         return dateTime.toISO({suppressMilliseconds: true, suppressSeconds: true});
     }
 }
-

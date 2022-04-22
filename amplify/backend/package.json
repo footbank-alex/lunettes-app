@@ -7,16 +7,17 @@
     "watch": "tsc -w"
   },
   "dependencies": {
-    "@aws-amplify/cli-extensibility-helper": "^2.3.21"
+    "@aws-amplify/cli-extensibility-helper": "^2.3.23"
   },
   "devDependencies": {
     "typescript": "^4.6.3",
-    "esbuild": "^0.14.36"
+    "esbuild": "^0.14.38"
   },
   "private": true,
   "workspaces": [
     "lib/pinpoint-api",
     "lib/lunettes-register",
-    "lib/lunettes-endpoints"
+    "lib/lunettes-endpoints",
+    "lib/lunettes-cleanup"
   ]
 }

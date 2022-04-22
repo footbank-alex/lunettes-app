@@ -1,0 +1,62 @@
+[
+  {
+    "Action": [
+      "mobiletargeting:GetCampaigns"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteSegment"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/segments/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteCampaign"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/campaigns/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
