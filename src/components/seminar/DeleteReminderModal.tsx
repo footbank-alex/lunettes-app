@@ -3,12 +3,12 @@ import {useState} from "react"
 import {Alert, Button, ButtonGroup, Divider, Flex, Heading, Icon, Text, useTheme} from "@aws-amplify/ui-react";
 import {MdCancel, MdDelete} from "react-icons/md";
 import Modal from "../Modal";
-import {Endpoints} from "../../api/endpoint";
+import {Endpoint, Endpoints} from "../../api/endpoint";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import {handleError} from "../../api/utils";
 
 interface UpdateReminderModalProps {
-    endpoint: Endpoints.Endpoint;
+    endpoint: Endpoint;
     close: () => void;
     onDelete: () => void;
 }

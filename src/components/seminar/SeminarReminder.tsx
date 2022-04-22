@@ -1,17 +1,16 @@
 import * as React from "react"
 import {Button, ButtonGroup, Card, Flex, Icon, Text, useTheme} from "@aws-amplify/ui-react";
 import {MdDelete, MdEdit} from "react-icons/md";
-import {DateTime} from "luxon";
 import {PortalWithState} from "react-portal";
 import {getPortalNode} from "../../utils/portal";
-import {Endpoints} from "../../api/endpoint";
+import {Endpoint} from "../../api/endpoint";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import UpdateReminderModal from "./UpdateReminderModal";
 import DeleteReminderModal from "./DeleteReminderModal";
 
 interface SeminarReminderProps {
     index: number;
-    endpoint: Endpoints.Endpoint;
+    endpoint: Endpoint;
     onUpdate: () => void;
 }
 
@@ -23,7 +22,7 @@ export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
                  backgroundColor={index % 2 == 0 ? tokens.colors.background.secondary : undefined}
                  padding="0.5rem">
         <Flex justifyContent="space-between" alignItems="center">
-            <Text>{endpoint.itemName} {endpoint.dateTime.toLocaleString(DateTime.DATETIME_MED)}</Text>
+            <Text>{endpoint.toString()}</Text>
             <ButtonGroup>
                 <PortalWithState node={getPortalNode()} closeOnEsc>
                     {({openPortal, closePortal, portal}) => (
