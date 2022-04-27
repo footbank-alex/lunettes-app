@@ -1,13 +1,12 @@
 import * as React from "react";
-import Layout from "../components/Layout";
 import {Heading, Text} from "@aws-amplify/ui-react";
 import {graphql} from "gatsby";
 
 const NotFoundPage = () =>
-    <Layout>
+    <>
         <Heading level={1}>NOT FOUND</Heading>
         <Text>You just hit a route that doesn&#39;t exist... the sadness.</Text>
-    </Layout>;
+    </>;
 
 export const query = graphql`
   query ($language: String!) {
