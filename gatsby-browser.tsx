@@ -1,14 +1,13 @@
 import * as React from "react";
 import {translations} from "@aws-amplify/ui-react";
 import {Amplify, I18n} from "aws-amplify";
-import config from './src/aws-exports';
+import config from "./src/aws-exports";
 import {Settings} from "luxon";
 import MockAdapter from "axios-mock-adapter";
 import axios from "axios";
 import {getEndpointsResponse} from "./mock-data";
-import '@aws-amplify/ui-react/styles.css';
-import "normalize.css";
-import "./src/styles/index.scss";
+import "@aws-amplify/ui-react/styles.css";
+import "./src/styles/index.css";
 
 Amplify.configure(config);
 

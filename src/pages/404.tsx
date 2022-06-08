@@ -4,8 +4,8 @@ import {graphql} from "gatsby";
 
 const NotFoundPage = () =>
     <>
-        <Heading level={1}>NOT FOUND</Heading>
-        <Text>You just hit a route that doesn&#39;t exist... the sadness.</Text>
+      <Heading level={1}>NOT FOUND</Heading>
+      <Text>You just hit a route that doesn&#39;t exist... the sadness.</Text>
     </>;
 
 export const query = graphql`

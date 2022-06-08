@@ -13,8 +13,25 @@ const config: GatsbyConfig = {
             }
         ]
     },
+    // More easily incorporate content into your pages through automatic TypeScript type generation and better GraphQL IntelliSense.
+    // If you use VSCode you can also use the GraphQL plugin
+    // Learn more at: https://gatsby.dev/graphql-typegen
+    graphqlTypegen: true,
     plugins: [
-        `gatsby-plugin-sass`,
+        {
+            resolve: `gatsby-plugin-postcss`,
+            options: {
+                postCssPlugins: [
+                    require(`postcss-import`),
+                    require(`postcss-preset-env`)({stage: 3}),
+                    require(`postcss-simple-vars`),
+                    require(`postcss-nested`),
+                    require(`postcss-mixins`),
+                    require(`autoprefixer`),
+                    require(`cssnano`),
+                ],
+            },
+        },
         {
             resolve: `gatsby-source-package`,
             options: {
@@ -28,9 +45,11 @@ const config: GatsbyConfig = {
                 name: `images`,
                 path: path.resolve(`src/images`),
             },
+            __key: `images`
         },
-        `gatsby-transformer-sharp`,
+        `gatsby-plugin-image`,
         `gatsby-plugin-sharp`,
+        `gatsby-transformer-sharp`,
         {
             resolve: `gatsby-plugin-manifest`,
             options: {

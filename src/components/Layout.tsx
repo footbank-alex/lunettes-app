@@ -79,23 +79,23 @@ const Layout = ({children}: LayoutProps) => {
         }
       }
     `}
-        render={(data) => <AmplifyProvider theme={lunettesTheme} colorMode={colorMode}>
+        render={(data: Queries.SiteTitleQueryQuery) => <AmplifyProvider theme={lunettesTheme} colorMode={colorMode}>
             <Authenticator.Provider>
                 <Helmet
-                    title={data.site.siteMetadata.title}
+                    title={data.site!.siteMetadata.title}
                     meta={[
-                        {name: "description", content: data.site.siteMetadata.description},
+                        {name: "description", content: data.site!.siteMetadata.description},
                     ]}>
                     <html lang={language}/>
                 </Helmet>
                 {env !== 'prod' && <PageRibbon env={env}/>}
                 <Authenticator key={language} hideSignUp
-                               components={authenticatorComponents(data.site.siteMetadata.title, colorMode, setColorMode)}>
+                               components={authenticatorComponents(data.site!.siteMetadata.title, colorMode, setColorMode)}>
                     {() =>
                         <Flex>
-                            <NavBar siteTitle={data.site.siteMetadata.title}
-                                    menuLinks={data.site.siteMetadata.menuLinks}
-                                    version={data.package.version}
+                            <NavBar siteTitle={data.site!.siteMetadata.title}
+                                    menuLinks={data.site!.siteMetadata.menuLinks as Queries.MenuLink[]}
+                                    version={data.package!.version}
                                     colorMode={colorMode} setColorMode={setColorMode}/>
                             <Button
                                 className="menu-button"
@@ -106,9 +106,9 @@ const Layout = ({children}: LayoutProps) => {
                             </Button>
                             {expanded &&
                                 <View className={`mobile-nav${expanded ? ' expanded' : ''}`}>
-                                    <Navigation siteTitle={data.site.siteMetadata.title}
-                                                menuLinks={data.site.siteMetadata.menuLinks}
-                                                version={data.package.version}
+                                    <Navigation siteTitle={data.site!.siteMetadata.title}
+                                                menuLinks={data.site!.siteMetadata.menuLinks as Queries.MenuLink[]}
+                                                version={data.package!.version!}
                                                 colorMode={colorMode} setColorMode={setColorMode}
                                                 onClick={() => setExpanded(false)}/>
                                 </View>

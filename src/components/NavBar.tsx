@@ -17,9 +17,9 @@ import ColorModeSwitcher from "./ColorModeSwitcher";
 import {MdLogout} from "react-icons/md";
 
 interface NavbarProps {
-    siteTitle: string,
-    menuLinks: [{ name: string, link: string }],
-    version: string,
+    siteTitle?: string,
+    menuLinks: { readonly name: string, readonly link: string }[],
+    version?: string,
     colorMode: ColorMode,
     setColorMode: (value: ColorMode) => void,
     onClick?: React.MouseEventHandler<HTMLAnchorElement>

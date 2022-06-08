@@ -1,8 +1,6 @@
-node_modules/**
-build/**
-public/**
-.cache
-.cache/**
+.cache/
+public
+src/gatsby-types.d.ts
 
 #amplify-do-not-edit-begin
 amplify/\#current-cloud-backend
@@ -12,7 +10,6 @@ amplify/mock-data
 amplify/backend/amplify-meta.json
 amplify/backend/.temp
 build/
-public/
 dist/
 node_modules/
 aws-exports.js
