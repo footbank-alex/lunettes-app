@@ -1,16 +1,21 @@
 import {API} from "aws-amplify";
 import {DateTime} from "luxon";
+import {TFunction} from "react-i18next";
 
 export class Endpoint {
-    constructor(public id: string, public itemName: string, public dateTime: DateTime) {
+    constructor(public id: string, public itemName: string, public dateTime?: DateTime) {
     }
 
     get dateTimeString() {
-        return this.dateTime.toLocaleString(DateTime.DATETIME_MED);
+        return this.dateTime?.toLocaleString(DateTime.DATETIME_MED);
     }
 
-    toString(): string {
-        return this.itemName + " " + this.dateTimeString;
+    get onHold() {
+        return !this.dateTime;
+    }
+
+    toString(t: TFunction) {
+        return this.itemName + " " + (this.onHold ? `(${t('endpoint.onHold')})` : this.dateTimeString);
     }
 }
 
@@ -21,15 +26,19 @@ export namespace Endpoints {
         return endpoints.map(value => new Endpoint(
             value.id,
             value.itemName,
-            DateTime.fromISO(value.dateTime)
-        )).sort((a, b) => a.itemName.localeCompare(b.itemName) || a.dateTime.toMillis() - b.dateTime.toMillis());
+            value.dateTime ? DateTime.fromISO(value.dateTime) : undefined
+        )).sort((a, b) => a.itemName.localeCompare(b.itemName) || (a.dateTime?.toMillis() || 0) - (b.dateTime?.toMillis() || 0));
     }
 
     export async function remove(endpoint: Endpoint) {
         return await API.del('lunettes', `/endpoint/${endpoint.id}`, {});
     }
 
-    export async function update(endpoint: Endpoint, dateTime: DateTime) {
-        return await API.put('lunettes', `/endpoint/${endpoint.id}`, {body: {dateTime: dateTime.toJSON()}});
+    export async function update(endpoint: Endpoint, dateTime?: DateTime) {
+        let body = {};
+        if (dateTime) {
+            body = {dateTime: dateTime.toJSON()};
+        }
+        return await API.put('lunettes', `/endpoint/${endpoint.id}`, {body});
     }
 }

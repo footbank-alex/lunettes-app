@@ -1,6 +1,18 @@
 import * as React from "react"
 import {useState} from "react"
-import {Alert, Button, ButtonGroup, Divider, Flex, Heading, Icon, Text, useTheme, View} from "@aws-amplify/ui-react";
+import {
+    Alert,
+    Button,
+    ButtonGroup,
+    Divider,
+    Flex,
+    Heading,
+    Icon,
+    SwitchField,
+    Text,
+    useTheme,
+    View
+} from "@aws-amplify/ui-react";
 import {MdCancel, MdSave} from "react-icons/md";
 import {DateTime} from "luxon";
 import Modal from "../Modal";
@@ -19,7 +31,8 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
     const {tokens} = useTheme();
     const {t, language} = useI18next();
 
-    const [newDateTime, setNewDateTime] = useState(endpoint.dateTime.toJSDate());
+    const [onHold, setOnHold] = useState(!endpoint.dateTime);
+    const [newDateTime, setNewDateTime] = useState(endpoint.dateTime?.toJSDate());
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
 
@@ -27,7 +40,7 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
         setError('');
         setUpdating(true);
         try {
-            await Endpoints.update(endpoint, DateTime.fromJSDate(newDateTime));
+            await Endpoints.update(endpoint, onHold ? undefined : DateTime.fromJSDate(newDateTime!));
             onUpdate();
             close();
         } catch (e: unknown) {
@@ -38,10 +51,12 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
     }
 
     function dateTimeError() {
-        if (!newDateTime) {
-            return 'dateTimeEmpty';
-        } else if (DateTime.fromJSDate(newDateTime) <= DateTime.now()) {
-            return 'dateTimeInPast';
+        if (!onHold) {
+            if (!newDateTime) {
+                return 'dateTimeEmpty';
+            } else if (DateTime.fromJSDate(newDateTime) <= DateTime.now()) {
+                return 'dateTimeInPast';
+            }
         }
         return null;
     }
@@ -53,7 +68,14 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
             <Text
                 fontSize="large">{t('update.modal.content')}</Text>
             <Flex className="amplify-field amplify-textfield">
+                <SwitchField
+                    label={t('endpoint.onHold')}
+                    isChecked={onHold}
+                    onChange={(e) => {
+                        setOnHold(e.target.checked);
+                    }}/>
                 <DateTimePicker required
+                                disabled={onHold}
                                 minDate={DateTime.now().toJSDate()}
                                 locale={language}
                                 onChange={setNewDateTime}

@@ -16,18 +16,18 @@
       "function": {
         "lunettesRegister": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesRegister-797a394d78346d506e6a-build.zip",
+          "s3Key": "amplify-builds/lunettesRegister-7746376244674f346456-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         },
         "lunettesEndpoints": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-50366d355a4e624d782f-build.zip",
+          "s3Key": "amplify-builds/lunettesEndpoints-754d51486b42706b4c53-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         },
         "lunettesCleanup": {
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesCleanup-49732f33767a384f7133-build.zip"
+          "s3Key": "amplify-builds/lunettesCleanup-4238584c77676b5a464c-build.zip"
         }
       },
       "auth": {

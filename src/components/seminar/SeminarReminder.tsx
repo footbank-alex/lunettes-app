@@ -22,7 +22,7 @@ export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
                  backgroundColor={index % 2 == 0 ? tokens.colors.background.secondary : undefined}
                  padding="0.5rem">
         <Flex justifyContent="space-between" alignItems="center">
-            <Text>{endpoint.toString()}</Text>
+            <Text>{endpoint.toString(t)}</Text>
             <ButtonGroup>
                 <PortalWithState node={getPortalNode()} closeOnEsc>
                     {({openPortal, closePortal, portal}) => (

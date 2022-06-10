@@ -56,7 +56,8 @@ export default () => {
                 <Alert variation="info">{t('search.result.empty')}</Alert>}
             {endpoints && endpoints.length > 0 &&
                 <Collection type="list" items={endpoints} isPaginated itemsPerPage={20} gap={0}
-                            isSearchable searchFilter={itemHasText}
+                            isSearchable
+                            searchFilter={(item, searchText) => itemHasText((item as Endpoint).toString(t), searchText)}
                             searchPlaceholder={t('search.result.search.placeholder')}>
                     {(item, index) => (
                         <SeminarReminder key={index} index={index} endpoint={item}
@@ -69,15 +70,15 @@ export default () => {
 };
 
 export const query = graphql`
-  query ($language: String!) {
-    locales: allLocale(filter: {ns: {in: ["common", "seminar"]}, language: {eq: $language}}) {
-      edges {
-        node {
-          ns
-          data
-          language
+    query ($language: String!) {
+        locales: allLocale(filter: {ns: {in: ["common", "seminar"]}, language: {eq: $language}}) {
+            edges {
+                node {
+                    ns
+                    data
+                    language
+                }
+            }
         }
-      }
     }
-  }
 `;
