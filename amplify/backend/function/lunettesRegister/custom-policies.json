@@ -83,6 +83,26 @@
         ]
       }
     ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetSmsTemplate"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:templates/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
   }
 ]
 

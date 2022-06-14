@@ -64,7 +64,7 @@
                           }
                         ]
                       },
-                      "/GET/endpoints/*/*"
+                      "/GET/seminars/*/*"
                     ]
                   ]
                 },
@@ -94,7 +94,7 @@
                           }
                         ]
                       },
-                      "/GET/endpoints/*"
+                      "/GET/seminars/*"
                     ]
                   ]
                 },
@@ -124,7 +124,7 @@
                           }
                         ]
                       },
-                      "/PUT/endpoint/*/*"
+                      "/PUT/seminar/*/*/*"
                     ]
                   ]
                 },
@@ -154,7 +154,7 @@
                           }
                         ]
                       },
-                      "/PUT/endpoint/*"
+                      "/PUT/seminar/*/*"
                     ]
                   ]
                 },
@@ -184,7 +184,7 @@
                           }
                         ]
                       },
-                      "/PATCH/endpoint/*/*"
+                      "/PATCH/seminar/*/*/*"
                     ]
                   ]
                 },
@@ -214,7 +214,7 @@
                           }
                         ]
                       },
-                      "/PATCH/endpoint/*"
+                      "/PATCH/seminar/*/*"
                     ]
                   ]
                 },
@@ -244,7 +244,7 @@
                           }
                         ]
                       },
-                      "/DELETE/endpoint/*/*"
+                      "/DELETE/seminar/*/*/*"
                     ]
                   ]
                 },
@@ -274,7 +274,7 @@
                           }
                         ]
                       },
-                      "/DELETE/endpoint/*"
+                      "/DELETE/seminar/*/*"
                     ]
                   ]
                 }

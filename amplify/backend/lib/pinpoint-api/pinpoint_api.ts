@@ -1,26 +1,30 @@
 import {
     CampaignResponse,
     CreateCampaignCommand,
+    CreateCampaignCommandInput,
     CreateSegmentCommand,
+    CreateSegmentCommandInput,
     DeleteCampaignCommand,
-    DeleteEndpointCommand,
     DeleteSegmentCommand,
     GetCampaignsCommand,
     GetCampaignsCommandInput,
+    GetEndpointCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
-    GetUserEndpointsCommand,
+    GetSmsTemplateCommand,
     NotFoundException,
     NumberValidateResponse,
     PhoneNumberValidateCommand,
     PinpointClient,
     SendMessagesCommand,
+    SendMessagesCommandInput,
     UpdateEndpointCommand,
     UpdateEndpointCommandInput
 } from "@aws-sdk/client-pinpoint";
-import {createHash, zenkaku2hankaku} from "./utils";
+import {zenkaku2hankaku} from "./utils";
 import {DateTime} from "luxon";
 import {CampaignConfig} from "./campaign_config";
+import {AttributeType} from "@aws-sdk/client-pinpoint/models/models_0";
 
 const MESSAGE_TYPE = "TRANSACTIONAL";
 
@@ -28,11 +32,18 @@ const PAGE_SIZE = 200;
 
 const SEGMENT_UID_TAG = 'uid';
 
+const ENDPOINT_ATTRIBUTE_MAX_LENGTH = 100;
 const CAMPAIGN_NAME_MAX_LENGTH = 64;
 const CAMPAIGN_CONFIGS = [
     new CampaignConfig('lunettes_seminar_reminder_1day', '（1日前）', (dateTime) => dateTime.minus({days: 1})),
     new CampaignConfig('lunettes_seminar_reminder_1hour', '（1時間前）', (dateTime) => dateTime.minus({hours: 1}))
 ];
+
+const SEMINAR_IDENTIFIER_SEPARATOR = '_';
+const SEMINARS_ATTRIBUTE_KEY = 'Seminars';
+const SEMINAR_MAX_COUNT = 50;
+
+type Seminar = { endpointId: string, id: number, itemName: string, dateTime?: DateTime };
 
 export class PinpointAPI {
     private readonly pinpoint: PinpointClient;
@@ -43,28 +54,29 @@ export class PinpointAPI {
         this.projectId = projectId;
     }
 
-    createSegmentMetadata(itemName: string, dateTime?: DateTime): { uid: string; name: string } {
-        let dateSuffix = '';
-        if (dateTime) {
-            dateSuffix = '_' + dateTime.toISO(
-                {
-                    format: 'basic',
-                    suppressMilliseconds: true,
-                    suppressSeconds: true,
-                    includeOffset: false
-                });
-        }
+    static generateSeminarIdentifier(itemName: string, dateTime?: DateTime): string {
+        const dateSuffix = dateTime ? SEMINAR_IDENTIFIER_SEPARATOR + this.formatDate(dateTime) : '';
+        return itemName.substring(0, ENDPOINT_ATTRIBUTE_MAX_LENGTH - dateSuffix.length) + dateSuffix;
+    }
+
+    static generateSegmentName(itemName: string, dateTime: DateTime): string {
+        const dateSuffix = '_' + this.formatDate(dateTime);
 
         // since campaign names have a limit of 64 characters and segment name will be used in the campaign name
         // we have to calculate max length for the segment name prefix
-        const segmentName = itemName.substring(0,
+        return itemName.substring(0,
             CAMPAIGN_NAME_MAX_LENGTH - dateSuffix.length - Math.max(
                 ...CAMPAIGN_CONFIGS.map(config => config.nameSuffix.length))) + dateSuffix;
-        const segmentUid = createHash(itemName + dateSuffix);
-        return {
-            uid: segmentUid,
-            name: segmentName
-        };
+    }
+
+    static formatDate(dateTime: DateTime): string {
+        return dateTime.toISO(
+            {
+                format: 'basic',
+                suppressMilliseconds: true,
+                suppressSeconds: true,
+                includeOffset: false
+            });
     }
 
     async validateNumber(phoneNumber: string) {
@@ -83,29 +95,35 @@ export class PinpointAPI {
         return data.NumberValidateResponse!;
     }
 
-    async getEndpoints(numberValidateResponse: NumberValidateResponse) {
-        const userId = PinpointAPI.getUserId(numberValidateResponse.CleansedPhoneNumberE164!);
-        try {
-            const response = await this.pinpoint.send(new GetUserEndpointsCommand({
-                ApplicationId: this.projectId,
-                UserId: userId
-            }));
-            console.debug(response);
-            return response.EndpointsResponse!.Item || [];
-        } catch (e: unknown) {
-            console.error(e);
-            if (e instanceof NotFoundException) {
-                console.info(`User ID ${userId} does not exist, returning empty list of endpoints`);
-                return [];
-            }
-            throw e;
+    async getSeminars(numberValidateResponse: NumberValidateResponse): Promise<Seminar[]> {
+        const endpointId = PinpointAPI.getEndpointId(numberValidateResponse.CleansedPhoneNumberE164!);
+        const endpoint = await this.getEndpoint(endpointId);
+        if (!endpoint) {
+            console.info(`Endpoint ${endpointId} does not exist, returning empty list of seminars`);
+            return [];
         }
+        return PinpointAPI.deserializeSeminarIdentifiers(endpointId, endpoint?.Attributes?.[SEMINARS_ATTRIBUTE_KEY] || [])
+            .filter(value => !value.dateTime || value.dateTime > DateTime.local());
     }
 
-    async createEndpoint(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, source: string, dateTime: DateTime) {
+    async addSeminar(numberValidateResponse: NumberValidateResponse, name: string, itemName: string, dateTime: DateTime) {
         const destinationNumber = numberValidateResponse.CleansedPhoneNumberE164!;
-        const userId = PinpointAPI.getUserId(destinationNumber);
-        const endpointId = PinpointAPI.getEndpointId(userId, source);
+        const endpointId = PinpointAPI.getEndpointId(destinationNumber);
+        const seminarIdentifier = PinpointAPI.generateSeminarIdentifier(itemName, dateTime);
+        const seminarIdentifiers = [];
+        const endpoint = await this.getEndpoint(endpointId);
+        seminarIdentifiers.push(...endpoint?.Attributes?.[SEMINARS_ATTRIBUTE_KEY] || [], seminarIdentifier);
+        const seminars = PinpointAPI.removeOldSeminars(
+            PinpointAPI.deserializeSeminarIdentifiers(endpointId, seminarIdentifiers)
+        );
+        if (seminars.length > SEMINAR_MAX_COUNT) {
+            // delete oldest on hold seminar, if there is none just delete first/oldest seminar
+            let indexToDelete = seminars.findIndex(value => !value.dateTime);
+            if (indexToDelete < 0) {
+                indexToDelete = 0;
+            }
+            delete seminars[indexToDelete];
+        }
 
         const params: UpdateEndpointCommandInput = {
             ApplicationId: this.projectId,
@@ -123,15 +141,11 @@ export class PinpointAPI {
                     Timezone: numberValidateResponse.Timezone || 'Japan'
                 },
                 Attributes: {
-                    Source: [
-                        source
-                    ],
-                    ItemName: [
-                        itemName
-                    ],
-                    DateTime: [
-                        PinpointAPI.getEndpointDateTime(dateTime)
-                    ]
+                    [SEMINARS_ATTRIBUTE_KEY]: PinpointAPI.serializeSeminarIdentifiers(
+                        PinpointAPI.removeOldSeminars(
+                            PinpointAPI.deserializeSeminarIdentifiers(endpointId, seminarIdentifiers)
+                        )
+                    )
                 },
                 User: {
                     UserAttributes: {
@@ -139,62 +153,102 @@ export class PinpointAPI {
                             name
                         ]
                     },
-                    UserId: userId
+                    UserId: endpointId
                 }
             }
         };
         const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
+        await this.createCampaigns(seminarIdentifier, itemName, dateTime);
         console.debug(response);
         return endpointId;
     }
 
-    async updateEndpoint(endpointId: string, dateTime?: DateTime) {
-        const endpoint = await this.deleteEndpoint(endpointId);
-        const metadata = this.createSegmentMetadata(endpoint.Attributes!.ItemName[0], dateTime);
+    async updateSeminar(endpointId: string, seminarId: number, newDateTime?: DateTime) {
+        const endpoint = await this.getEndpoint(endpointId);
+        if (!endpoint) {
+            throw `Endpoint ${endpointId} not found`;
+        }
+        if (!endpoint.Attributes) {
+            throw `Invalid endpoint`;
+        }
 
-        const {...attributes} = endpoint.Attributes;
-        delete attributes['Source'];
-        delete attributes['DateTime'];
+        const seminars = PinpointAPI.deserializeSeminarIdentifiers(endpointId, endpoint.Attributes[SEMINARS_ATTRIBUTE_KEY]);
+        const seminar = seminars[seminarId];
+        seminar.dateTime = newDateTime;
 
-        // if dateTime is null create new endpoint without Source and DateTime attributes to essentially put it on hold (保留)
-        // by Source attribute being null endpoint won't be included in any segments and therefore no campaign message will be sent
         const params: UpdateEndpointCommandInput = {
             ApplicationId: this.projectId,
-            EndpointId: PinpointAPI.getEndpointId(endpoint.User!.UserId!, metadata.uid),
+            EndpointId: endpointId,
             EndpointRequest: {
                 ...endpoint,
                 Attributes: {
-                    ...attributes,
-                    ...(dateTime && {
-                        Source: [
-                            metadata.uid
-                        ],
-                        DateTime: [
-                            PinpointAPI.getEndpointDateTime(dateTime)
-                        ]
-                    })
+                    ...endpoint.Attributes,
+                    [SEMINARS_ATTRIBUTE_KEY]: PinpointAPI.serializeSeminarIdentifiers(
+                        PinpointAPI.removeOldSeminars(
+                            seminars
+                        )
+                    )
                 },
-                OptOut: dateTime ? 'NONE' : 'ALL'
             }
         };
         const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
         console.debug(response);
-        if (dateTime) {
-            await this.createCampaigns(metadata.uid, metadata.name, dateTime);
+        if (newDateTime) {
+            await this.createCampaigns(PinpointAPI.serializeSeminarIdentifier(seminar), seminar.itemName, newDateTime);
         }
     }
 
-    async deleteEndpoint(endpointId: string) {
-        const response = await this.pinpoint.send(new DeleteEndpointCommand({
+    async deleteSeminar(endpointId: string, seminarId: number) {
+        const endpoint = await this.getEndpoint(endpointId);
+        if (!endpoint) {
+            throw `Endpoint ${endpointId} not found`;
+        }
+        if (!endpoint.Attributes) {
+            throw `Invalid endpoint`;
+        }
+
+        const seminars = PinpointAPI.deserializeSeminarIdentifiers(endpointId, endpoint.Attributes[SEMINARS_ATTRIBUTE_KEY]);
+        delete seminars[seminarId];
+
+        const params: UpdateEndpointCommandInput = {
             ApplicationId: this.projectId,
-            EndpointId: endpointId
-        }));
+            EndpointId: endpointId,
+            EndpointRequest: {
+                ...endpoint,
+                Attributes: {
+                    ...endpoint.Attributes,
+                    [SEMINARS_ATTRIBUTE_KEY]: PinpointAPI.serializeSeminarIdentifiers(
+                        PinpointAPI.removeOldSeminars(
+                            seminars
+                        )
+                    )
+                },
+            }
+        };
+        const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
         console.debug(response);
-        return response.EndpointResponse!;
     }
 
-    async sendConfirmation(endpointId: string, templateName: string) {
-        const params = {
+    async getEndpoint(endpointId: string) {
+        try {
+            const response = await this.pinpoint.send(new GetEndpointCommand({
+                ApplicationId: this.projectId,
+                EndpointId: endpointId
+            }));
+            console.debug(response);
+            return response.EndpointResponse!;
+        } catch (e) {
+            console.error(e);
+            if (e instanceof NotFoundException) {
+                return null;
+            }
+            throw e;
+        }
+    }
+
+    async sendConfirmation(endpointId: string, templateName: string, itemName: string, dateTime: DateTime) {
+        const messageBody = await this.getMessage(itemName, dateTime, templateName, "3");
+        const params: SendMessagesCommandInput = {
             ApplicationId: this.projectId,
             MessageRequest: {
                 Endpoints: {
@@ -202,20 +256,15 @@ export class PinpointAPI {
                 },
                 MessageConfiguration: {
                     SMSMessage: {
-                        MessageType: MESSAGE_TYPE
-                    }
-                },
-                TemplateConfiguration: {
-                    SMSTemplate: {
-                        Name: templateName
+                        MessageType: MESSAGE_TYPE,
+                        Body: messageBody
                     }
                 }
             }
         };
 
         const data = await this.pinpoint.send(new SendMessagesCommand(params));
-        console.debug("Message sent! " +
-            data.MessageResponse!.EndpointResult![endpointId].StatusMessage);
+        console.debug(data.MessageResponse!.EndpointResult![endpointId].StatusMessage);
         return data.MessageResponse;
     }
 
@@ -235,23 +284,23 @@ export class PinpointAPI {
         return false;
     }
 
-    async createSegment(segmentUid: string, segmentName: string) {
-        const params = {
+    async createSegment(seminarIdentifier: string, segmentName: string) {
+        const params: CreateSegmentCommandInput = {
             ApplicationId: this.projectId,
             WriteSegmentRequest: {
                 Dimensions: {
                     Attributes: {
-                        Source: {
+                        [SEMINARS_ATTRIBUTE_KEY]: {
                             Values: [
-                                segmentUid
+                                seminarIdentifier
                             ],
-                            AttributeType: 'INCLUSIVE'
+                            AttributeType: AttributeType.INCLUSIVE
                         }
                     }
                 },
                 Name: segmentName,
                 tags: {
-                    [SEGMENT_UID_TAG]: segmentUid
+                    [SEGMENT_UID_TAG]: seminarIdentifier
                 }
             }
         };
@@ -261,36 +310,34 @@ export class PinpointAPI {
         return data.SegmentResponse!.Id!;
     }
 
-    async createCampaigns(segmentUid: string, segmentName: string, dateTime: DateTime) {
-        if (CAMPAIGN_CONFIGS.some(config => config.isApplicable(dateTime)) && !await this.segmentExists(segmentUid)) {
-            const segmentId = await this.createSegment(segmentUid, segmentName);
+    async createCampaigns(seminarIdentifier: string, itemName: string, dateTime: DateTime) {
+        if (CAMPAIGN_CONFIGS.some(config => config.isApplicable(dateTime)) && !await this.segmentExists(seminarIdentifier)) {
+            const segmentName = PinpointAPI.generateSegmentName(itemName, dateTime);
+            const segmentId = await this.createSegment(seminarIdentifier, segmentName);
             await Promise.all(CAMPAIGN_CONFIGS.filter(config => config.isApplicable(dateTime)).map(
                 async config => this.createCampaign(segmentName + config.nameSuffix, segmentId, config.template,
-                    config.calculateDateTime(dateTime))));
+                    config.calculateDateTime(dateTime), itemName, dateTime)));
         }
     }
 
-    async createCampaign(campaignName: string, segmentId: string, templateName: string, dateTime: DateTime) {
-        const params = {
+    async createCampaign(campaignName: string, segmentId: string, templateName: string, startTime: DateTime, itemName: string, dateTime: DateTime) {
+        const messageBody = await this.getMessage(itemName, dateTime, templateName, "3");
+        const params: CreateCampaignCommandInput = {
             ApplicationId: this.projectId,
             WriteCampaignRequest: {
                 MessageConfiguration: {
                     SMSMessage: {
-                        MessageType: MESSAGE_TYPE
+                        MessageType: MESSAGE_TYPE,
+                        Body: messageBody
                     }
                 },
                 Name: campaignName,
                 Schedule: {
-                    StartTime: dateTime.toISO(),
+                    StartTime: startTime.toISO(),
                     Frequency: 'ONCE',
                     Timezone: 'UTC+09'
                 },
                 SegmentId: segmentId,
-                TemplateConfiguration: {
-                    SMSTemplate: {
-                        Name: templateName
-                    }
-                }
             }
         };
         const data = await this.pinpoint.send(new CreateCampaignCommand(params));
@@ -315,6 +362,19 @@ export class PinpointAPI {
         } while (token);
     }
 
+    async getMessage(itemName: string, dateTime: DateTime, templateName: string, templateVersion?: string) {
+        const response = await this.pinpoint.send(new GetSmsTemplateCommand({
+            TemplateName: templateName,
+            Version: templateVersion
+        }));
+        if (!response.SMSTemplateResponse?.Body) {
+            throw `Could not retrieve message body for template ${templateName}`;
+        }
+        return response.SMSTemplateResponse.Body
+            .replace('__seminar.name__', itemName)
+            .replace('__seminar.dateTime__', dateTime.toLocaleString(DateTime.DATETIME_MED));
+    }
+
     async deleteSegment(segmentId: string) {
         await this.pinpoint.send(
             new DeleteSegmentCommand({ApplicationId: this.projectId, SegmentId: segmentId}));
@@ -326,15 +386,33 @@ export class PinpointAPI {
         console.log('Deleted campaign:', campaignId);
     }
 
-    private static getUserId(cleansedPhoneNumber: string) {
+    private static getEndpointId(cleansedPhoneNumber: string) {
         return cleansedPhoneNumber.substring(1);
     }
 
-    private static getEndpointId(userId: string, source: string) {
-        return userId + '_' + source;
+    private static removeOldSeminars(seminars: Seminar[]) {
+        return seminars.filter(value => !value.dateTime || value.dateTime > DateTime.local());
     }
 
-    private static getEndpointDateTime(dateTime: DateTime) {
-        return dateTime.toISO({suppressMilliseconds: true, suppressSeconds: true});
+    private static deserializeSeminarIdentifiers(endpointId: string, seminarIdentifiers: string[]): Seminar[] {
+        return seminarIdentifiers.map((value, index) => this.deserializeSeminarIdentifier(endpointId, index, value));
+    }
+
+    private static deserializeSeminarIdentifier(endpointId: string, index: number, seminarIdentifier: string): Seminar {
+        const lastIndex = seminarIdentifier.lastIndexOf(SEMINAR_IDENTIFIER_SEPARATOR);
+        return {
+            endpointId,
+            id: index,
+            itemName: lastIndex < 0 ? seminarIdentifier : seminarIdentifier.slice(0, lastIndex),
+            dateTime: lastIndex < 0 ? undefined : DateTime.fromISO(seminarIdentifier.slice(lastIndex + 1))
+        };
+    }
+
+    private static serializeSeminarIdentifiers(seminars: Seminar[]): string[] {
+        return seminars.map(value => this.serializeSeminarIdentifier(value));
+    }
+
+    private static serializeSeminarIdentifier(seminar: Seminar): string {
+        return this.generateSeminarIdentifier(seminar.itemName, seminar.dateTime);
     }
 }

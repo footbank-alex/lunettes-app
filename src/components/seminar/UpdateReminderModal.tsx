@@ -17,22 +17,22 @@ import {MdCancel, MdSave} from "react-icons/md";
 import {DateTime} from "luxon";
 import Modal from "../Modal";
 import DateTimePicker from "react-datetime-picker";
-import {Endpoint, Endpoints} from "../../api/endpoint";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import {handleError} from "../../api/utils";
+import {Seminar, Seminars} from "../../api/seminar";
 
 interface UpdateReminderModalProps {
-    endpoint: Endpoint;
+    seminar: Seminar;
     close: () => void;
     onUpdate: () => void;
 }
 
-export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
+export default ({seminar, close, onUpdate}: UpdateReminderModalProps) => {
     const {tokens} = useTheme();
     const {t, language} = useI18next();
 
-    const [onHold, setOnHold] = useState(!endpoint.dateTime);
-    const [newDateTime, setNewDateTime] = useState(endpoint.dateTime?.toJSDate());
+    const [onHold, setOnHold] = useState(!seminar.dateTime);
+    const [newDateTime, setNewDateTime] = useState(seminar.dateTime?.toJSDate());
     const [updating, setUpdating] = useState(false);
     const [error, setError] = useState('');
 
@@ -40,7 +40,7 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
         setError('');
         setUpdating(true);
         try {
-            await Endpoints.update(endpoint, onHold ? undefined : DateTime.fromJSDate(newDateTime!));
+            await Seminars.update(seminar, onHold ? undefined : DateTime.fromJSDate(newDateTime!));
             onUpdate();
             close();
         } catch (e: unknown) {
@@ -69,7 +69,7 @@ export default ({endpoint, close, onUpdate}: UpdateReminderModalProps) => {
                 fontSize="large">{t('update.modal.content')}</Text>
             <Flex className="amplify-field amplify-textfield">
                 <SwitchField
-                    label={t('endpoint.onHold')}
+                    label={t('onHold')}
                     isChecked={onHold}
                     onChange={(e) => {
                         setOnHold(e.target.checked);

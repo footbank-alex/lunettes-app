@@ -19,10 +19,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     const numberValidateResponse = await api.validateNumber(params.phoneNumber!);
     if (numberValidateResponse.PhoneTypeCode === 0) {
         const dateTime = parseDateTime(params.dateTime!);
-        const metadata = api.createSegmentMetadata(params.itemName!, dateTime);
-        const endpointId = await api.createEndpoint(numberValidateResponse, params.name!, params.itemName!, metadata.uid, dateTime);
-        await api.sendConfirmation(endpointId, params.templateName!);
-        await api.createCampaigns(metadata.uid, metadata.name, dateTime);
+        const endpointId = await api.addSeminar(numberValidateResponse, params.name!, params.itemName!, dateTime);
+        await api.sendConfirmation(endpointId, params.templateName!, params.itemName!, dateTime);
     } else {
         console.log("Received a phone number that isn't capable of receiving " +
             "SMS messages. No endpoint created.");

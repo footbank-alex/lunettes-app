@@ -1,8 +1,9 @@
-import {Endpoint} from "./src/api/endpoint";
+import {Seminar} from "./src/api/seminar";
 import {DateTime} from "luxon";
 
-export const getEndpointsResponse: Endpoint[] = Array.from(Array(30).keys()).map(value => new Endpoint(
-    value.toString(),
+export const getEndpointsResponse: Seminar[] = Array.from(Array(30).keys()).map(value => new Seminar(
+    '1',
+    value,
     `Test ${value + 1}`,
     DateTime.now().plus({days: value})
 ));

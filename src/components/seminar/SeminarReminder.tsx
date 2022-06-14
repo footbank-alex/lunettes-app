@@ -3,18 +3,18 @@ import {Button, ButtonGroup, Card, Flex, Icon, Text, useTheme} from "@aws-amplif
 import {MdDelete, MdEdit} from "react-icons/md";
 import {PortalWithState} from "react-portal";
 import {getPortalNode} from "../../utils/portal";
-import {Endpoint} from "../../api/endpoint";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import UpdateReminderModal from "./UpdateReminderModal";
 import DeleteReminderModal from "./DeleteReminderModal";
+import {Seminar} from "../../api/seminar";
 
 interface SeminarReminderProps {
     index: number;
-    endpoint: Endpoint;
+    seminar: Seminar;
     onUpdate: () => void;
 }
 
-export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
+export default ({index, seminar, onUpdate}: SeminarReminderProps) => {
     const {tokens} = useTheme();
     const {t} = useI18next();
 
@@ -22,7 +22,7 @@ export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
                  backgroundColor={index % 2 == 0 ? tokens.colors.background.secondary : undefined}
                  padding="0.5rem">
         <Flex justifyContent="space-between" alignItems="center">
-            <Text>{endpoint.toString(t)}</Text>
+            <Text>{seminar.toString(t)}</Text>
             <ButtonGroup>
                 <PortalWithState node={getPortalNode()} closeOnEsc>
                     {({openPortal, closePortal, portal}) => (
@@ -31,7 +31,7 @@ export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
                                 <Icon ariaLabel="Update" as={MdEdit}/> {t('update.text')}
                             </Button>
                             {portal(
-                                <UpdateReminderModal endpoint={endpoint} close={closePortal} onUpdate={onUpdate}/>
+                                <UpdateReminderModal seminar={seminar} close={closePortal} onUpdate={onUpdate}/>
                             )}
                         </>
                     )}
@@ -44,7 +44,7 @@ export default ({index, endpoint, onUpdate}: SeminarReminderProps) => {
                                 <Icon ariaLabel="Delete" as={MdDelete}/> {t('delete.text')}
                             </Button>
                             {portal(
-                                <DeleteReminderModal endpoint={endpoint} close={closePortal} onDelete={onUpdate}/>
+                                <DeleteReminderModal seminar={seminar} close={closePortal} onDelete={onUpdate}/>
                             )}
                         </>
                     )}

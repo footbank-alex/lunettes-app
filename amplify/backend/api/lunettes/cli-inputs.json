@@ -8,8 +8,8 @@
         "setting": "open"
       }
     },
-    "/endpoints/{phoneNumber}": {
-      "name": "/endpoints/{phoneNumber}",
+    "/seminars/{phoneNumber}": {
+      "name": "/seminars/{phoneNumber}",
       "lambdaFunction": "lunettesEndpoints",
       "permissions": {
         "setting": "private",
@@ -18,8 +18,8 @@
         ]
       }
     },
-    "/endpoint/{endpointId}": {
-      "name": "/endpoint/{endpointId}",
+    "/seminar/{endpointId}/{seminarId}": {
+      "name": "/seminar/{endpointId}/{seminarId}",
       "lambdaFunction": "lunettesEndpoints",
       "permissions": {
         "setting": "private",

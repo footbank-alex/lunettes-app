@@ -13,9 +13,7 @@
       }
     }
   },
-  "endpoint": {
-    "onHold": "On hold"
-  },
+  "onHold": "On hold",
   "delete": {
     "text": "Delete",
     "modal": {

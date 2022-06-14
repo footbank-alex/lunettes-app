@@ -17,7 +17,7 @@
   "workspaces": [
     "lib/pinpoint-api",
     "lib/lunettes-register",
-    "lib/lunettes-endpoints",
+    "lib/lunettes-seminars",
     "lib/lunettes-cleanup"
   ]
 }

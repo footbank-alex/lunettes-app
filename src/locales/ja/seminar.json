@@ -13,9 +13,7 @@
       }
     }
   },
-  "endpoint": {
-    "onHold": "保留"
-  },
+  "onHold": "保留",
   "delete": {
     "text": "削除",
     "modal": {

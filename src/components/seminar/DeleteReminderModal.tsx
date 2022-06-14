@@ -3,17 +3,17 @@ import {useState} from "react"
 import {Alert, Button, ButtonGroup, Divider, Flex, Heading, Icon, Text, useTheme} from "@aws-amplify/ui-react";
 import {MdCancel, MdDelete} from "react-icons/md";
 import Modal from "../Modal";
-import {Endpoint, Endpoints} from "../../api/endpoint";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import {handleError} from "../../api/utils";
+import {Seminar, Seminars} from "../../api/seminar";
 
 interface UpdateReminderModalProps {
-    endpoint: Endpoint;
+    seminar: Seminar;
     close: () => void;
     onDelete: () => void;
 }
 
-export default ({endpoint, close, onDelete}: UpdateReminderModalProps) => {
+export default ({seminar, close, onDelete}: UpdateReminderModalProps) => {
     const {tokens} = useTheme();
     const {t} = useI18next();
 
@@ -24,7 +24,7 @@ export default ({endpoint, close, onDelete}: UpdateReminderModalProps) => {
         setError('');
         setDeleting(true);
         try {
-            await Endpoints.remove(endpoint);
+            await Seminars.remove(seminar);
             onDelete();
             close();
         } catch (e: unknown) {

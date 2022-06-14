@@ -2,7 +2,11 @@ import {DateTime} from "luxon";
 import * as crypto from "crypto";
 
 export function parseDateTime(str: string) {
-    const [month, day, hour, minute] = str.match(/\d+/g);
+    const match = str.match(/\d+/g);
+    if (!match) {
+        throw "Could not parse date";
+    }
+    const [month, day, hour, minute] = match;
     const now = DateTime.local();
     let year = now.year;
     if (!month || !day || !hour || !minute) {

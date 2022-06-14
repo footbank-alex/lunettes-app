@@ -11,7 +11,6 @@ import express from "express";
 import * as awsServerlessExpressMiddleware from 'aws-serverless-express/middleware';
 import {PinpointAPI} from "pinpoint-api";
 import {DateTime} from "luxon";
-import {parseDateTime} from "pinpoint-api/utils";
 
 
 /* Amplify Params - DO NOT EDIT
@@ -32,23 +31,6 @@ app.use((req, res, next) => {
     next();
 });
 
-function parse(dateTime: string) {
-    let result = DateTime.fromISO(dateTime);
-    if (result.isValid) {
-        return result;
-    }
-    result = DateTime.fromFormat(dateTime, "yyyy年M月d日 H:mm");
-    if (result.isValid) {
-        return result;
-    }
-    try {
-        return parseDateTime(dateTime);
-    } catch (e) {
-        console.warn(e);
-    }
-    return null;
-}
-
 function getErrorMessage(e: unknown) {
     let errorMessage = 'Unexpected error';
     if (e instanceof Error) {
@@ -63,23 +45,12 @@ function createAPI() {
     return new PinpointAPI(process.env.REGION!, process.env.pinpointProjectId!);
 }
 
-app.get('/endpoints/:phoneNumber', async (req, res) => {
+app.get('/seminars/:phoneNumber', async (req, res) => {
     const api = createAPI();
     try {
         const numberValidateResponse = await api.validateNumber(req.params.phoneNumber);
         if (numberValidateResponse.PhoneTypeCode === 0) {
-            const endpoints = await api.getEndpoints(numberValidateResponse);
-            const response = endpoints
-                .filter((endpoint) => endpoint.Attributes?.ItemName)
-                .map((endpoint) => {
-                    return {
-                        id: endpoint.Id,
-                        itemName: endpoint.Attributes!.ItemName[0],
-                        dateTime: endpoint.Attributes!.DateTime?.[0] ? parse(endpoint.Attributes!.DateTime[0]) : null
-                    }
-                })
-                .filter((result) => !result.dateTime || result.dateTime > DateTime.local());
-            res.json(response);
+            res.json(await api.getSeminars(numberValidateResponse));
         } else {
             const message = "Invalid phone number";
             console.error(message);
@@ -92,7 +63,7 @@ app.get('/endpoints/:phoneNumber', async (req, res) => {
     }
 });
 
-app.put('/endpoint/:endpointId', async (req, res) => {
+app.put('/seminar/:endpointId/:seminarId', async (req, res) => {
     let {dateTime} = req.body;
     if (!!dateTime) {
         dateTime = DateTime.fromISO(dateTime);
@@ -109,7 +80,7 @@ app.put('/endpoint/:endpointId', async (req, res) => {
     }
     try {
         const api = createAPI();
-        await api.updateEndpoint(req.params.endpointId, dateTime);
+        await api.updateSeminar(req.params.endpointId, parseInt(req.params.seminarId), dateTime);
         res.json({success: 'Successfully updated endpoint!', url: req.url, body: req.body});
     } catch (e: unknown) {
         let errorMessage = getErrorMessage(e);
@@ -117,10 +88,10 @@ app.put('/endpoint/:endpointId', async (req, res) => {
     }
 });
 
-app.delete('/endpoint/:endpointId', async (req, res) => {
+app.delete('/seminar/:endpointId/:seminarId', async (req, res) => {
     try {
         const api = createAPI();
-        await api.deleteEndpoint(req.params.endpointId);
+        await api.deleteSeminar(req.params.endpointId, parseInt(req.params.seminarId));
         res.json({success: 'Successfully deleted endpoint!', url: req.url});
     } catch (e: unknown) {
         let errorMessage = getErrorMessage(e);
