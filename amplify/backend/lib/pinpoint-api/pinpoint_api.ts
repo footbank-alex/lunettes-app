@@ -21,7 +21,7 @@ import {
     UpdateEndpointCommand,
     UpdateEndpointCommandInput
 } from "@aws-sdk/client-pinpoint";
-import {zenkaku2hankaku} from "./utils";
+import {createHash, parseDateTime, zenkaku2hankaku} from "./utils";
 import {DateTime} from "luxon";
 import {CampaignConfig} from "./campaign_config";
 import {AttributeType} from "@aws-sdk/client-pinpoint/models/models_0";
@@ -276,7 +276,7 @@ export class PinpointAPI {
                 PageSize: PAGE_SIZE.toString(),
                 Token: token
             }));
-            if (data.SegmentsResponse!.Item!.some(value => value.tags && value.tags[SEGMENT_UID_TAG] === uid)) {
+            if (data.SegmentsResponse!.Item!.some(value => value.tags && value.tags[SEGMENT_UID_TAG] === createHash(uid))) {
                 return true;
             }
             token = data.SegmentsResponse!.NextToken;
@@ -300,7 +300,7 @@ export class PinpointAPI {
                 },
                 Name: segmentName,
                 tags: {
-                    [SEGMENT_UID_TAG]: seminarIdentifier
+                    [SEGMENT_UID_TAG]: createHash(seminarIdentifier)
                 }
             }
         };
