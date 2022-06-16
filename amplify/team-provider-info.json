@@ -16,22 +16,22 @@
       "function": {
         "lunettesRegister": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesRegister-7774687773443034696a-build.zip",
+          "s3Key": "amplify-builds/lunettesRegister-65546569466d59534856-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         },
         "lunettesEndpoints": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesEndpoints-5944766a5a4a64647468-build.zip",
+          "s3Key": "amplify-builds/lunettesEndpoints-77776667443737756450-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         },
         "lunettesCleanup": {
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036",
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesCleanup-6348584d48746b723430-build.zip"
+          "s3Key": "amplify-builds/lunettesCleanup-35694f546e4b64577551-build.zip"
         },
         "lunettesMigration": {
           "deploymentBucketName": "amplify-lunettesapp-dev-74758-deployment",
-          "s3Key": "amplify-builds/lunettesMigration-32346137786a4a34564c-build.zip",
+          "s3Key": "amplify-builds/lunettesMigration-75617159496370393242-build.zip",
           "pinpointProjectId": "2dacfd48c7bb4832b413fe032a41b036"
         }
       },
