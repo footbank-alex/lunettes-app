@@ -1,17 +1,24 @@
 import {
+    AttributeType,
     CampaignResponse,
     CreateCampaignCommand,
     CreateCampaignCommandInput,
+    CreateExportJobCommand,
+    CreateExportJobCommandInput,
     CreateSegmentCommand,
     CreateSegmentCommandInput,
     DeleteCampaignCommand,
+    DeleteEndpointCommand,
     DeleteSegmentCommand,
+    EndpointResponse,
     GetCampaignsCommand,
     GetCampaignsCommandInput,
     GetEndpointCommand,
+    GetExportJobCommand,
     GetSegmentsCommand,
     GetSegmentsCommandOutput,
     GetSmsTemplateCommand,
+    JobStatus,
     NotFoundException,
     NumberValidateResponse,
     PhoneNumberValidateCommand,
@@ -24,7 +31,9 @@ import {
 import {createHash, parseDateTime, zenkaku2hankaku} from "./utils";
 import {DateTime} from "luxon";
 import {CampaignConfig} from "./campaign_config";
-import {AttributeType} from "@aws-sdk/client-pinpoint/models/models_0";
+import {GetObjectCommand, ListObjectsV2Command, S3Client} from "@aws-sdk/client-s3";
+import {Readable} from "stream";
+import {createGunzip} from "zlib";
 
 const MESSAGE_TYPE = "TRANSACTIONAL";
 
@@ -414,5 +423,169 @@ export class PinpointAPI {
 
     private static serializeSeminarIdentifier(seminar: Seminar): string {
         return this.generateSeminarIdentifier(seminar.itemName, seminar.dateTime);
+    }
+
+    // MIGRATION CODE
+    async exportEndpoints() {
+        const directory = DateTime.now().toISO({
+            suppressMilliseconds: true,
+            includeOffset: false
+        });
+        const bucket = 'pinpoint-migration-lunettes'
+        const keyPrefix = `exports/${directory}`
+        const params: CreateExportJobCommandInput = {
+            ApplicationId: this.projectId,
+            ExportJobRequest: {
+                S3UrlPrefix: `s3://${bucket}/${keyPrefix}`,
+                RoleArn: 'arn:aws:iam::618741021188:role/s3ExportRole'
+            }
+        };
+        let data = await this.pinpoint.send(new CreateExportJobCommand(params));
+        console.log('Export job created');
+        console.debug(data);
+        const jobId = data.ExportJobResponse!.Id!;
+
+        const maxEndTime = DateTime.now().plus({minutes: 2})
+        let completed = false;
+        while (!completed && DateTime.now() <= maxEndTime) {
+            await new Promise(resolve => setTimeout(resolve, 5000));
+            const job = await this.pinpoint.send(new GetExportJobCommand({
+                ApplicationId: this.projectId,
+                JobId: jobId
+            }));
+            completed = job.ExportJobResponse?.JobStatus === JobStatus.COMPLETED;
+        }
+
+        const endpoints: EndpointResponse[] = [];
+        for await (const file of this.getExportFiles(bucket, keyPrefix)) {
+            endpoints.push(...file.trim().split('\n').map(value => value.trim()).filter(value => !!value)
+                .map(value => {
+                    return JSON.parse(value);
+                }));
+        }
+        console.log(`${endpoints.length} endpoints found`);
+        return endpoints;
+    }
+
+    async migrateEndpoints(endpoints: EndpointResponse[]) {
+        const addresses = [...new Set(endpoints.map(value => value.Address!))];
+        console.log(`${addresses.length} different addresses found`);
+
+        for (const address of addresses) {
+            console.log(`Checking address ${address}`);
+            const addressEndpoints = endpoints.filter(value => value.Address === address);
+            if (addressEndpoints.length > 0) {
+                // consider migrated endpoints as well to make migration idempotent
+                const seminars = PinpointAPI.removeOldSeminars(
+                    addressEndpoints.filter(value => value.Attributes?.ItemName?.[0] && value.Attributes?.DateTime?.[0] && value.User?.UserAttributes?.Name?.[0])
+                        .map(function (value, index): Seminar {
+                            return {
+                                endpointId: value.Id!,
+                                id: index,
+                                itemName: value.Attributes!.ItemName[0],
+                                dateTime: PinpointAPI.parse(value.Attributes!.DateTime[0])
+                            }
+                        })
+                        .concat(addressEndpoints.filter(value => value.Attributes?.Seminars?.length || 0 > 0).flatMap(value =>
+                            PinpointAPI.deserializeSeminarIdentifiers(value.Id!, value.Attributes!.Seminars)
+                        )));
+                if (seminars.length > 0) {
+                    console.log(`Creating new endpoint for address ${address}`);
+                    const endpointId = PinpointAPI.getEndpointId(address);
+                    const params: UpdateEndpointCommandInput = {
+                        ApplicationId: this.projectId,
+                        EndpointId: endpointId,
+                        EndpointRequest: {
+                            ChannelType: 'SMS',
+                            Address: address,
+                            OptOut: 'NONE',
+                            Location: addressEndpoints[0].Location,
+                            Demographic: {
+                                Timezone: addressEndpoints[0].Demographic?.Timezone || 'Japan'
+                            },
+                            Attributes: {
+                                [SEMINARS_ATTRIBUTE_KEY]: PinpointAPI.serializeSeminarIdentifiers(seminars)
+                            },
+                            User: {
+                                UserAttributes: {
+                                    Name: [
+                                        addressEndpoints[0].User!.UserAttributes!.Name[0]
+                                    ]
+                                },
+                                UserId: endpointId
+                            }
+                        }
+                    };
+                    const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
+                    console.debug(response);
+                    for (const seminar of seminars) {
+                        await this.createCampaigns(PinpointAPI.serializeSeminarIdentifier(seminar), seminar.itemName, seminar.dateTime!);
+                    }
+                }
+            }
+        }
+    }
+
+    async deleteOldEndpoints(endpoints: EndpointResponse[]) {
+        console.log(`Deleting old endpoints`);
+        // remove only endpoints with the old ID convention (containing a hash of itemName and dateTime)
+        // new endpoints will have Ids equal to the result of getEndpointId
+        for (const endpoint of endpoints.filter(value => value.Id !== PinpointAPI.getEndpointId(value.Address!))) {
+            const response = await this.pinpoint.send(new DeleteEndpointCommand({
+                ApplicationId: this.projectId,
+                EndpointId: endpoint.Id
+            }));
+            console.debug(response);
+        }
+    }
+
+    async* getExportFiles(
+        bucket: string,
+        keyPrefix: string
+    ): AsyncIterableIterator<string> {
+        const s3 = new S3Client({});
+        const objects = await s3.send(new ListObjectsV2Command({
+            Bucket: bucket,
+            Prefix: keyPrefix
+        }));
+        const promises: Promise<string>[] = objects.Contents!.map(value => value.Key!).filter(value => value.includes('.gz')).map(async (key) => {
+            const object = await s3.send(new GetObjectCommand({
+                Bucket: bucket,
+                Key: key
+            }));
+            return new Promise((resolve, reject) => {
+                if (!object.Body) {
+                    reject('No body');
+                } else {
+                    const chunks: Uint8Array[] = [];
+                    const bodyStream = object.Body! as Readable;
+                    bodyStream
+                        .pipe(createGunzip())
+                        .on("data", (chunk) => chunks.push(Buffer.from(chunk)))
+                        .on("error", err => reject(err))
+                        .on("end", () =>
+                            resolve(Buffer.concat(chunks).toString("utf-8"))
+                        );
+                }
+            })
+        });
+        yield* promises;
+    }
+
+    static parse(dateTime: string) {
+        let result = DateTime.fromISO(dateTime);
+        if (result.isValid) {
+            return result;
+        }
+        result = DateTime.fromFormat(dateTime, "yyyy年M月d日 H:mm");
+        if (result.isValid) {
+            return result;
+        }
+        try {
+            return parseDateTime(dateTime);
+        } catch (e) {
+            console.warn(e);
+        }
+        return undefined;
     }
 }

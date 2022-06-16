@@ -27,7 +27,8 @@
     "test": "echo \"Write tests! -> https://gatsby.dev/unit-testing\"",
     "amplify:lunettesRegister": "yarn --cwd amplify/backend/lib/lunettes-register run build",
     "amplify:lunettesSeminars": "yarn --cwd amplify/backend/lib/lunettes-seminars run build",
-    "amplify:lunettesCleanup": "yarn --cwd amplify/backend/lib/lunettes-cleanup run build"
+    "amplify:lunettesCleanup": "yarn --cwd amplify/backend/lib/lunettes-cleanup run build",
+    "amplify:lunettesMigration": "yarn --cwd amplify/backend/lib/lunettes-migration run build"
   },
   "dependencies": {
     "@aws-amplify/ui-react": "^2.19.0",

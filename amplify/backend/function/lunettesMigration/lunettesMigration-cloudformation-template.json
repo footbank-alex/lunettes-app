@@ -1,0 +1,405 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "{\"createdOn\":\"Windows\",\"createdBy\":\"Amplify\",\"createdWith\":\"8.5.0\",\"stackType\":\"function-Lambda\",\"metadata\":{}}",
+  "Parameters": {
+    "CloudWatchRule": {
+      "Type": "String",
+      "Default": "NONE",
+      "Description": " Schedule Expression"
+    },
+    "deploymentBucketName": {
+      "Type": "String"
+    },
+    "env": {
+      "Type": "String"
+    },
+    "s3Key": {
+      "Type": "String"
+    },
+    "pinpointProjectId": {
+      "Type": "String"
+    }
+  },
+  "Conditions": {
+    "ShouldNotCreateEnvResources": {
+      "Fn::Equals": [
+        {
+          "Ref": "env"
+        },
+        "NONE"
+      ]
+    }
+  },
+  "Resources": {
+    "LambdaFunction": {
+      "Type": "AWS::Lambda::Function",
+      "Metadata": {
+        "aws:asset:path": "./src",
+        "aws:asset:property": "Code"
+      },
+      "Properties": {
+        "Code": {
+          "S3Bucket": {
+            "Ref": "deploymentBucketName"
+          },
+          "S3Key": {
+            "Ref": "s3Key"
+          }
+        },
+        "Handler": "index.handler",
+        "FunctionName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "lunettesMigration",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "lunettesMigration",
+                  "-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "Environment": {
+          "Variables": {
+            "ENV": {
+              "Ref": "env"
+            },
+            "REGION": {
+              "Ref": "AWS::Region"
+            },
+            "pinpointProjectId": {
+              "Ref": "pinpointProjectId"
+            }
+          }
+        },
+        "Role": {
+          "Fn::GetAtt": [
+            "LambdaExecutionRole",
+            "Arn"
+          ]
+        },
+        "Runtime": "nodejs14.x",
+        "Layers": [],
+        "Timeout": 300
+      }
+    },
+    "LambdaExecutionRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::If": [
+            "ShouldNotCreateEnvResources",
+            "lunettesappLambdaRole30e6fb76",
+            {
+              "Fn::Join": [
+                "",
+                [
+                  "lunettesappLambdaRole30e6fb76",
+                  "-",
+                  {
+                    "Ref": "env"
+                  }
+                ]
+              ]
+            }
+          ]
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "lambda.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "lambdaexecutionpolicy": {
+      "DependsOn": [
+        "LambdaExecutionRole"
+      ],
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "lambda-execution-policy",
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ],
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Action": [
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Resource": {
+                "Fn::Sub": [
+                  "arn:aws:logs:${region}:${account}:log-group:/aws/lambda/${lambda}:log-stream:*",
+                  {
+                    "region": {
+                      "Ref": "AWS::Region"
+                    },
+                    "account": {
+                      "Ref": "AWS::AccountId"
+                    },
+                    "lambda": {
+                      "Ref": "LambdaFunction"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CustomLambdaExecutionPolicy": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyName": "custom-lambda-execution-policy",
+        "PolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Action": [
+                "mobiletargeting:CreateSegment",
+                "mobiletargeting:GetSegments",
+                "mobiletargeting:CreateCampaign",
+                "mobiletargeting:TagResource",
+                "mobiletargeting:GetCampaigns",
+                "mobiletargeting:CreateExportJob"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "mobiletargeting:UpdateEndpoint",
+                "mobiletargeting:DeleteEndpoint",
+                "mobiletargeting:PutEvents"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/endpoints/*",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "mobiletargeting:DeleteSegment"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/segments/*",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "mobiletargeting:DeleteCampaign"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/campaigns/*",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "mobiletargeting:GetExportJob"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/jobs/export/*",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "mobiletargeting:GetSmsTemplate"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:mobiletargeting:${region}:${account}:templates/*",
+                    {
+                      "region": {
+                        "Ref": "AWS::Region"
+                      },
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "s3:ListBucket"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:s3:::pinpoint-migration-lunettes",
+                    {
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "s3:GetObject"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:s3:::pinpoint-migration-lunettes/exports/*",
+                    {
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            },
+            {
+              "Action": [
+                "iam:PassRole",
+                "sts:AssumeRole"
+              ],
+              "Resource": [
+                {
+                  "Fn::Sub": [
+                    "arn:aws:iam::${account}:role/s3ExportRole",
+                    {
+                      "account": {
+                        "Ref": "AWS::AccountId"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "Effect": "Allow"
+            }
+          ]
+        },
+        "Roles": [
+          {
+            "Ref": "LambdaExecutionRole"
+          }
+        ]
+      },
+      "DependsOn": "LambdaExecutionRole"
+    }
+  },
+  "Outputs": {
+    "Name": {
+      "Value": {
+        "Ref": "LambdaFunction"
+      }
+    },
+    "Arn": {
+      "Value": {
+        "Fn::GetAtt": [
+          "LambdaFunction",
+          "Arn"
+        ]
+      }
+    },
+    "Region": {
+      "Value": {
+        "Ref": "AWS::Region"
+      }
+    },
+    "LambdaExecutionRole": {
+      "Value": {
+        "Ref": "LambdaExecutionRole"
+      }
+    }
+  }
+}

@@ -5,7 +5,9 @@
   "main": "pinpoint_api.ts",
   "dependencies": {
     "@aws-sdk/client-pinpoint": "^3.75.0",
-    "luxon": "^2.3.2"
+    "@aws-sdk/client-s3": "^3.110.0",
+    "luxon": "^2.3.2",
+    "zlib": "^1.0.5"
   },
   "devDependencies": {
     "@types/aws-lambda": "^8.10.95",

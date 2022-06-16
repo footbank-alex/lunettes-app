@@ -1,0 +1,181 @@
+[
+  {
+    "Action": [
+      "mobiletargeting:CreateSegment",
+      "mobiletargeting:GetSegments",
+      "mobiletargeting:CreateCampaign",
+      "mobiletargeting:TagResource",
+      "mobiletargeting:GetCampaigns",
+      "mobiletargeting:CreateExportJob"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:UpdateEndpoint",
+      "mobiletargeting:DeleteEndpoint",
+      "mobiletargeting:PutEvents"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/endpoints/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteSegment"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/segments/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:DeleteCampaign"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/campaigns/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetExportJob"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:apps/${pinpointProjectId}/jobs/export/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "mobiletargeting:GetSmsTemplate"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:mobiletargeting:${region}:${account}:templates/*",
+          {
+            "region": {
+              "Ref": "AWS::Region"
+            },
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "s3:ListBucket"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:s3:::pinpoint-migration-lunettes",
+          {
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "s3:GetObject"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:s3:::pinpoint-migration-lunettes/exports/*",
+          {
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "Action": [
+      "iam:PassRole",
+      "sts:AssumeRole"
+    ],
+    "Resource": [
+      {
+        "Fn::Sub": [
+          "arn:aws:iam::${account}:role/s3ExportRole",
+          {
+            "account": {
+              "Ref": "AWS::AccountId"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
