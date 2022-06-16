@@ -119,9 +119,12 @@ export class PinpointAPI {
         const destinationNumber = numberValidateResponse.CleansedPhoneNumberE164!;
         const endpointId = PinpointAPI.getEndpointId(destinationNumber);
         const seminarIdentifier = PinpointAPI.generateSeminarIdentifier(itemName, dateTime);
-        const seminarIdentifiers = [];
         const endpoint = await this.getEndpoint(endpointId);
-        seminarIdentifiers.push(...endpoint?.Attributes?.[SEMINARS_ATTRIBUTE_KEY] || [], seminarIdentifier);
+        const seminarIdentifiers = endpoint?.Attributes?.[SEMINARS_ATTRIBUTE_KEY] || [];
+        if (seminarIdentifiers.includes(seminarIdentifier)) {
+            throw `Endpoint is already registered to seminar ${seminarIdentifier}`;
+        }
+        seminarIdentifiers.push(seminarIdentifier);
         const seminars = PinpointAPI.removeOldSeminars(
             PinpointAPI.deserializeSeminarIdentifiers(endpointId, seminarIdentifiers)
         );
