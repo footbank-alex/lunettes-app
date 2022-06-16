@@ -493,6 +493,12 @@ export class PinpointAPI {
                             PinpointAPI.deserializeSeminarIdentifiers(value.Id!, value.Attributes!.Seminars)
                         )));
                 if (seminars.length > 0) {
+                    // remove duplicates
+                    let uniqueSeminarIdentifiers = [...new Set(PinpointAPI.serializeSeminarIdentifiers(seminars))];
+                    if (uniqueSeminarIdentifiers.length > SEMINAR_MAX_COUNT) {
+                        // if max count is exceeded just cut off at start
+                        uniqueSeminarIdentifiers = uniqueSeminarIdentifiers.slice(uniqueSeminarIdentifiers.length - SEMINAR_MAX_COUNT, uniqueSeminarIdentifiers.length);
+                    }
                     console.log(`Creating new endpoint for address ${address}`);
                     const endpointId = PinpointAPI.getEndpointId(address);
                     const params: UpdateEndpointCommandInput = {
@@ -507,7 +513,7 @@ export class PinpointAPI {
                                 Timezone: addressEndpoints[0].Demographic?.Timezone || 'Japan'
                             },
                             Attributes: {
-                                [SEMINARS_ATTRIBUTE_KEY]: PinpointAPI.serializeSeminarIdentifiers(seminars)
+                                [SEMINARS_ATTRIBUTE_KEY]: uniqueSeminarIdentifiers
                             },
                             User: {
                                 UserAttributes: {
@@ -521,8 +527,10 @@ export class PinpointAPI {
                     };
                     const response = await this.pinpoint.send(new UpdateEndpointCommand(params));
                     console.debug(response);
-                    for (const seminar of seminars) {
-                        await this.createCampaigns(PinpointAPI.serializeSeminarIdentifier(seminar), seminar.itemName, seminar.dateTime!);
+                    for (let i = 0; i < uniqueSeminarIdentifiers.length; i++) {
+                        const seminarIdentifier = uniqueSeminarIdentifiers[i];
+                        const seminar = PinpointAPI.deserializeSeminarIdentifier(endpointId, i, seminarIdentifier);
+                        await this.createCampaigns(seminarIdentifier, seminar.itemName, seminar.dateTime!);
                     }
                 }
             }
