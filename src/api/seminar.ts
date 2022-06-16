@@ -6,16 +6,12 @@ export class Seminar {
     constructor(public endpointId: string, public id: number, public itemName: string, public dateTime?: DateTime) {
     }
 
-    get dateTimeString() {
-        return this.dateTime?.toLocaleString(DateTime.DATETIME_MED);
-    }
-
-    get onHold() {
-        return !this.dateTime;
+    dateTimeString(t: TFunction) {
+        return this.dateTime?.toLocaleString(DateTime.DATETIME_MED) ?? t('onHold');
     }
 
     toString(t: TFunction) {
-        return this.itemName + " " + (this.onHold ? `(${t('onHold')})` : this.dateTimeString);
+        return this.itemName + " " + this.dateTimeString(t);
     }
 }
 

@@ -1,13 +1,12 @@
 import * as React from "react"
 import {useState} from "react"
-import {Alert, Collection, Flex, Heading, Loader, SearchField} from "@aws-amplify/ui-react";
+import {Alert, Flex, Heading, Loader, SearchField} from "@aws-amplify/ui-react";
 import {useI18next} from "gatsby-plugin-react-i18next";
 import {graphql} from "gatsby";
 import {isValidPhoneNumber} from "../../utils/validation";
-import SeminarReminder from "../../components/seminar/SeminarReminder";
 import {handleError} from "../../api/utils";
-import {itemHasText} from "../../utils/search";
 import {Seminar, Seminars} from "../../api/seminar";
+import SeminarReminders from "../../components/seminar/SeminarReminders";
 
 export default () => {
     const {t} = useI18next();
@@ -55,15 +54,7 @@ export default () => {
             {searchValue && searchValid && !loading && (!seminars || seminars.length <= 0) &&
                 <Alert variation="info">{t('search.result.empty')}</Alert>}
             {seminars && seminars.length > 0 &&
-                <Collection type="list" items={seminars} isPaginated itemsPerPage={20} gap={0}
-                            isSearchable
-                            searchFilter={(item, searchText) => itemHasText((item as Seminar).toString(t), searchText)}
-                            searchPlaceholder={t('search.result.search.placeholder')}>
-                    {(item, index) => (
-                        <SeminarReminder key={index} index={index} seminar={item}
-                                         onUpdate={() => search(searchValue)}/>
-                    )}
-                </Collection>
+                <SeminarReminders seminars={seminars} onUpdate={() => search(searchValue)}/>
             }
         </Flex>
     );
